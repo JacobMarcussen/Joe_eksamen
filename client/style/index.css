@@ -1,11 +1,15 @@
-body,
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap");
+
 html {
+  overflow: hidden;
+}
+
+body {
   margin: 0;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-family: "Roboto Condensed", sans-serif;
   color: whitesmoke;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
   font-weight: bolder;
 }
 
@@ -13,6 +17,7 @@ html {
   width: 100%;
   height: 100%;
   background-color: rgb(30, 30, 30);
+  overflow: scroll;
 }
 
 header {
@@ -29,7 +34,7 @@ header {
   height: 5px;
   background-color: rgba(247, 193, 217, 1);
   width: 100%;
-  box-shadow: 5, 5, 5, 5 white;
+  box-shadow: 5px, 5px, 5px white;
 }
 
 .nav {
@@ -65,7 +70,7 @@ header {
   justify-content: center;
   align-items: center;
   background-position: center;
-  background-image: url("https://images.ctfassets.net/tyelhjh38zrj/4V1DPrExkIqIqVF0omUH30/bd560e5804351e59b2e6597196d5e8f0/Store_image_2_compressed.jpg?q=75&w=1920&fm=avif");
+  background-image: url("/client/img/Store_image.avif");
 }
 
 .front {
@@ -98,4 +103,41 @@ button {
   font-size: 15px;
   font-weight: bolder;
   background-color: rgba(247, 193, 217, 1);
+}
+
+.explore_cards {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 50px;
+  justify-content: center;
+  overflow: visible;
+}
+
+.card {
+  position: static;
+  overflow: visible;
+  width: 375px;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: brightness(0.5) blur(3px);
+}
+
+.footer {
+  height: 100px;
+  margin: 0;
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  background-color: rgb(30, 30, 30);
+}
+
+.outer_card {
+  position: relative;
+  top: -200px;
+  border-radius: 5px;
+  border: 5px solid rgba(247, 193, 217, 1);
 }
