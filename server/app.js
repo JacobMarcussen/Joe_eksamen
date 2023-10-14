@@ -24,7 +24,7 @@ app.listen(port, () => {
   console.log(`Server open on port ${port}`);
 });
 
-//Tror http er så socket.io virker?
+//Tror http er så socket.io virker? - Kan ikke køre på samme tid som app.listen
 
 // http.listen(port, "localhost", () => {
 //   console.log(`Socket.IO server running at http://localhost:${port}/`);
