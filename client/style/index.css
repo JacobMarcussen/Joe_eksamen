@@ -43,10 +43,16 @@ header {
 }
 
 .nav {
-  margin-left: 40px;
+  margin-left: auto;
   display: inline-flex;
   text-decoration: none;
   list-style: none;
+}
+
+@media only screen and (max-width: 900px) {
+  .nav {
+    display: none;
+  }
 }
 
 .nav a {
@@ -84,17 +90,14 @@ header {
   justify-content: center;
   align-items: center;
   background-position: center;
-  background-image: url("/client/img/Store_image.avif");
+  background-image: url("../img/Store_image.avif");
 }
 
 .front {
   width: 100%;
   height: 100%;
   position: absolute;
-  background-image: linear-gradient(
-    rgba(19, 19, 19, 0.65) 75%,
-    rgb(30, 30, 30) 100%
-  );
+  background-image: linear-gradient(rgba(19, 19, 19, 0.65) 75%, rgb(30, 30, 30) 100%);
 }
 
 .intro {
