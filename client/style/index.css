@@ -53,6 +53,9 @@ header {
   .nav {
     display: none;
   }
+  .burger_menu {
+    display: inline-block !important;
+  }
 }
 
 .nav a {
@@ -113,6 +116,18 @@ header {
   height: 30%;
 }
 
+@media only screen and (max-height: 870px) {
+  .explore {
+    padding-bottom: 5vh;
+  }
+}
+
+@media only screen and (max-height: 710px) {
+  .explore {
+    padding-bottom: 10vh;
+  }
+}
+
 button {
   padding-left: 30px;
   padding-right: 30px;
@@ -123,6 +138,7 @@ button {
   font-size: 15px;
   font-weight: bolder;
   background-color: rgba(247, 193, 217, 1);
+  text-decoration: none;
 }
 
 .explore_cards {
@@ -203,4 +219,53 @@ button {
   width: 30px;
   height: 30px;
   margin: 30px;
+}
+
+.burger_menu {
+  display: none;
+  cursor: pointer;
+}
+
+.bar1,
+.bar2,
+.bar3 {
+  width: 25px;
+  height: 3px;
+  background-color: whitesmoke;
+  margin: 6px 0;
+  margin-right: 30px;
+  transition: 0.4s;
+  border-radius: 5px;
+}
+
+.change .burger_menu .bar1 {
+  transform: translate(0, 11px) rotate(-45deg);
+}
+
+.change .burger_menu .bar2 {
+  opacity: 0;
+}
+
+.change .burger_menu .bar3 {
+  transform: translate(0, -11px) rotate(45deg);
+}
+
+.change .nav_group .nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.change .nav_group .nav a {
+  color: rgb(30, 30, 30);
+}
+
+.change .nav_group {
+  z-index: 10;
+  position: absolute;
+  top: 70px;
+  left: -15px;
+  background-color: rgba(247, 193, 217, 1);
+  padding-bottom: 100vh;
+  padding-right: 30vw;
+  transform: translateY(-12px);
 }
