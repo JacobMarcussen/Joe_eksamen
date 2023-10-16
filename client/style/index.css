@@ -139,7 +139,7 @@ button {
   font-weight: bolder;
   background-color: rgba(247, 193, 217, 1);
   text-decoration: none;
-  color: whitesmoke;
+  color: rgb(30, 30, 30);
 }
 
 .explore_cards {
