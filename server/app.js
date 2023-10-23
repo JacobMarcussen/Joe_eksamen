@@ -6,6 +6,20 @@ const app = express();
 // const http = require("http").Server(app);
 // const io = require("socket.io")(http);
 
+// Pinger
+// const http = require("http");
+
+// function pingServer() {
+//   const startTime = Date.now();
+//   http.get("http://164.92.232.145", (res) => {
+//     const endTime = Date.now();
+//     const rtt = endTime - startTime;
+//     console.log(`RTT: ${rtt} ms`);
+//   });
+// }
+
+// setInterval(pingServer, 1000); // Ping server hvert sekund
+
 // Middlewares
 
 app.use(express.json());
