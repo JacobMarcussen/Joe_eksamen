@@ -2,6 +2,12 @@
 
 stor schlong
 
-Cloudinary login
+# Cloudinary login
 valdemar.ebbeskov2@gmail.com
 Juiceme123!
+
+# Digitalocean
+
+# Api
+
+# (Database)
