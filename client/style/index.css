@@ -149,6 +149,8 @@ button {
   gap: 50px;
   justify-content: center;
   overflow: visible;
+  margin-left: 25px;
+  margin-right: 25px;
 }
 
 .card:before {
