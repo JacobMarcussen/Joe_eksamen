@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Joe & The Juice</title>
+    <link rel="icon" href="../img/small_logo.svg" />
+    <link rel="stylesheet" href="../style/index.css" />
+  </head>
+  <body style="background-color: rgba(247, 193, 217, 1); text-align: center">
+    <div style="color: black; margin-top: 100px; text-align: center">
+      <h1>Sign In</h1>
+      <form
+        action="/auth/login"
+        method="POST"
+        style="display: inline-block; text-align: center; margin: 0 auto"
+      >
+        <div style="display: flex; flex-direction: column; align-items: flex-start">
+          <label for="email" style="margin-bottom: 10px">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            style="
+              margin-bottom: 20px;
+              padding: 10px;
+              width: 300px;
+              border-radius: 5px;
+              border: none;
+              box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+            "
+          />
+          <label for="password" style="margin-bottom: 10px">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            required
+            style="
+              margin-bottom: 20px;
+              padding: 10px;
+              width: 300px;
+              border-radius: 5px;
+              border: none;
+              box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+            "
+          />
+        </div>
+        <button
+          type="submit"
+          style="
+            background-color: rgba(255, 255, 255, 1);
+            color: black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+          "
+        >
+          Sign In
+        </button>
+        <a href="/auth/signup" style="color: black; margin-top: 20px; display: block">Sign Up</a>
+      </form>
+    </div>
+    <img
+      src="../img/small_logo.svg"
+      alt="Joe & The Juice Logo"
+      style="width: 200px; height: auto; margin-top: 50px"
+    />
+  </body>
+</html>
