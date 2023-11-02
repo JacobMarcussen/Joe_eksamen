@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Joe & The Juice</title>
+    <link rel="icon" href="../img/small_logo.svg" />
+    <link rel="stylesheet" href="../style/index.css" />
+    <link rel="stylesheet" href="../style/auth.css" />
+  </head>
+  <body>
+    <div class="signin-container">
+      <h1>Sign Up</h1>
+      <form method="POST" id="signup_form">
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="username" name="username" id="username" required />
+
+          <label for="email">Email</label>
+          <input type="email" name="email" id="email" required />
+
+          <label for="phone">Phone</label>
+          <input type="phone" name="phone" id="phone" required />
+
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" required />
+        </div>
+        <button type="submit">Sign Up</button>
+        <p>
+          Har du allerede en konto?
+          <a href="/login" class="auth-link">Sign In</a>
+        </p>
+      </form>
+    </div>
+    <img src="../img/small_logo.svg" alt="Joe & The Juice Logo" class="logo" />
+    <script src="../js/login.js"></script>
+  </body>
+</html>
