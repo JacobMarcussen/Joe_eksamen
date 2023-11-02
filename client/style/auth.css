@@ -1,0 +1,57 @@
+body {
+    background-color: rgba(247, 193, 217, 1);
+    text-align: center;
+}
+
+.signin-container {
+    color: black;
+    margin-top: 100px;
+}
+
+.signin-form {
+    display: inline-block;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.input-group label {
+    margin-bottom: 10px;
+}
+
+.input-group input {
+    margin-bottom: 20px;
+    padding: 10px;
+    width: 300px;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+button {
+    background-color: rgba(255, 255, 255, 1);
+    color: black;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+.auth-link {
+    color: black;
+    margin-top: 20px;
+    display: inline-block;
+}
+
+.logo {
+    width: 200px;
+    height: auto;
+    margin-top: 50px;
+}
