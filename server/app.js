@@ -5,25 +5,12 @@ const cookieParser = require("cookie-parser");
 const sqlite3 = require("sqlite3").verbose();
 const http = require("http");
 const socketIo = require("socket.io");
-const crypto = require("crypto");
 
 const app = express();
 
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-//Auth
-function isAuthenticated(req, res, next) {
-  if (req.cookies.user_id) {
-    // User is logged in, allow access to the route
-    next();
-  } else {
-    res.status(401).send("Unauthorized");
-  }
-}
-
-//Database
 
 const db = new sqlite3.Database("database.db");
 db.serialize(() => {
@@ -32,9 +19,27 @@ db.serialize(() => {
   );
 });
 
-// Middlewares
+// Auth
+function checkAuthentication(req, res, next) {
+  if (!!req.cookies.user_id) {
+    if (req.path !== "/dashboard") {
+      res.redirect("/dashboard");
+    } else {
+      next();
+    }
+  } else {
+    if (req.path !== "/login") {
+      res.redirect("/login");
+    } else {
+      next();
+    }
+  }
+}
 
+// Middlewares
 app.use(express.static(path.join(__dirname, "../client")));
+
+app.use(checkAuthentication);
 
 app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/login.html"));
@@ -44,13 +49,15 @@ app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/signup.html"));
 });
 
-app.get("/dashboard", isAuthenticated, (req, res) => {
-  // Render the dashboard HTML page
+app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/index.html"));
 });
 
-//Importing routes
+app.get("/", (req, res) => {
+  res.redirect("/login");
+});
 
+//Importing routes
 const authRoutes = require("../server/routes/auth.js");
 app.use("/auth", authRoutes);
 
