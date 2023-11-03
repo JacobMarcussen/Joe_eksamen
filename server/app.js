@@ -3,8 +3,6 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const sqlite3 = require("sqlite3").verbose();
-const http = require("http");
-const socketIo = require("socket.io");
 
 const app = express();
 
@@ -63,9 +61,6 @@ app.use("/auth", authRoutes);
 
 //Starter server
 const port = 8000;
-
-const server = http.createServer(app); // Create an HTTP server
-const io = socketIo(server); // Create a Socket.io instance using the HTTP server
 
 app.listen(port, () => {
   console.log(`Server open on port ${port}`);
