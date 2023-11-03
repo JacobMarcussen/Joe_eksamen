@@ -37,8 +37,6 @@ function checkAuthentication(req, res, next) {
 // Middlewares
 app.use(express.static(path.join(__dirname, "../client")));
 
-app.use(checkAuthentication);
-
 app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/login.html"));
 });
@@ -47,11 +45,11 @@ app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/signup.html"));
 });
 
-app.get("/dashboard", (req, res) => {
+app.get("/dashboard", checkAuthentication, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/index.html"));
 });
 
-app.get("/", (req, res) => {
+app.get("/", checkAuthentication, (req, res) => {
   res.redirect("/login");
 });
 
