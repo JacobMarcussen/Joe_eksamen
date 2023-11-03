@@ -4,19 +4,32 @@ function setupLoginPage() {
   login_form.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const formData = new FormData(this);
-
+    const formData = {
+      password: login_form.querySelector("#password").value,
+      email: login_form.querySelector("#email").value,
+    };
+    console.log(formData);
     fetch("/auth/login", {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/json", // Set the content type to JSON
+      },
+      body: JSON.stringify(formData), // Convert to JSON string
     })
       .then((response) => response.text())
       .then((data) => {
         if (data === "User not found.") {
           window.alert("User not found. Please check your email or password.");
+        } else if (data === "Invalid email or password") {
+          window.alert("Invalid email or password. Please try again.");
         } else {
+          // Successfully logged in, you can redirect or perform other actions
           window.location.href = "/dashboard";
         }
+      })
+      .catch((error) => {
+        console.error("Login error:", error);
+        window.alert("An error occurred during login.");
       });
   });
 }
