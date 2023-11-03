@@ -21,18 +21,14 @@ router.post("/login", (req, res) => {
 
     console.log(user.password);
     // Compare the provided password with the hashed password in the database using bcrypt
-    bcrypt.compare(password, user.password, (compareErr, isMatch) => {
-      if (compareErr) {
-        return res.status(500).send("Internal Server Error");
+    bcrypt.compare(password, user.password).then((isMatch) => {
+      if (isMatch) {
+        console.log(isMatch);
+        res.cookie("user_id", user.id, { maxAge: 900000 });
+        res.redirect("/dashboard");
+      } else {
+        return res.status(401).send("Invalid email or password");
       }
-
-      if (!isMatch) {
-        return res.status(401).send("Invalid email or password.");
-      }
-
-      // Set up a session and store user data in the session
-      res.cookie("user_id", user.id, { maxAge: 900000 }); // Set an expiration time for the cookie (e.g., 15 minutes)
-      res.redirect("/dashboard");
     });
   });
 });
