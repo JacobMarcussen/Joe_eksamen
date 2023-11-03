@@ -13,6 +13,16 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+//Auth
+function isAuthenticated(req, res, next) {
+  if (req.cookies.user_id) {
+    // User is logged in, allow access to the route
+    next();
+  } else {
+    res.status(401).send("Unauthorized");
+  }
+}
+
 //Database
 
 const db = new sqlite3.Database("database.db");
@@ -34,7 +44,7 @@ app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/signup.html"));
 });
 
-app.get("/dashboard", (req, res) => {
+app.get("/dashboard", isAuthenticated, (req, res) => {
   // Render the dashboard HTML page
   res.sendFile(path.join(__dirname, "../client/views/index.html"));
 });

@@ -7,7 +7,6 @@ const bcrypt = require("bcrypt");
 // Login route
 router.post("/login", (req, res) => {
   const { password, email } = req.body;
-  console.log(password, email);
 
   // Retrieve the user from the database based on their email
   db.get("SELECT * FROM users WHERE email = ?", [email], (err, user) => {
@@ -19,11 +18,9 @@ router.post("/login", (req, res) => {
       return res.status(401).send("User not found.");
     }
 
-    console.log(user.password);
     // Compare the provided password with the hashed password in the database using bcrypt
     bcrypt.compare(password, user.password).then((isMatch) => {
       if (isMatch) {
-        console.log(isMatch);
         res.cookie("user_id", user.id, { maxAge: 900000 });
         res.redirect("/dashboard");
       } else {

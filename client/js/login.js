@@ -8,7 +8,6 @@ function setupLoginPage() {
       password: login_form.querySelector("#password").value,
       email: login_form.querySelector("#email").value,
     };
-    console.log(formData);
     fetch("/auth/login", {
       method: "POST",
       headers: {
