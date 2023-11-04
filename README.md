@@ -11,3 +11,4 @@ Juiceme123!
 # Api
 
 # (Database)
+download sqlite viewer extension i vscode

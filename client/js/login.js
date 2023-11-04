@@ -11,9 +11,9 @@ function setupLoginPage() {
     fetch("/auth/login", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json", // Set the content type to JSON
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData), // Convert to JSON string
+      body: JSON.stringify(formData),
     })
       .then((response) => response.text())
       .then((data) => {
@@ -22,7 +22,6 @@ function setupLoginPage() {
         } else if (data === "Invalid email or password") {
           window.alert("Invalid email or password. Please try again.");
         } else {
-          // Successfully logged in, you can redirect or perform other actions
           window.location.href = "/dashboard";
         }
       })
@@ -50,9 +49,9 @@ function setupSignupPage() {
     fetch("/auth/signup", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json", // Set the content type to JSON
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData), // Convert to JSON string
+      body: JSON.stringify(formData),
     })
       .then((response) => {
         if (response.status === 200) {
