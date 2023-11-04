@@ -6,7 +6,7 @@ function setupLoginPage() {
 
     const formData = {
       password: login_form.querySelector("#password").value,
-      email: login_form.querySelector("#email").value,
+      email: login_form.querySelector("#email").value.toLowerCase(),
     };
     fetch("/auth/login", {
       method: "POST",
@@ -40,9 +40,9 @@ function setupSignupPage() {
     e.preventDefault();
 
     const formData = {
-      username: signup_form.querySelector("#username").value,
+      username: signup_form.querySelector("#username").value.toLowerCase(),
       password: signup_form.querySelector("#password").value,
-      email: signup_form.querySelector("#email").value,
+      email: signup_form.querySelector("#email").value.toLowerCase(),
       phone: signup_form.querySelector("#phone").value,
     };
 

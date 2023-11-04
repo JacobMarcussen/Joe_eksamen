@@ -26,22 +26,35 @@ function checkAuthentication(req, res, next) {
       next();
     }
   } else {
-    if (req.path !== "/login") {
-      res.redirect("/login");
+    if (req.path == "/signup") {
+      next();
+    } else if (req.path !== "/login") {
+      setTimeout(() => {
+        res.redirect("/login");
+      }, 1000);
     } else {
       next();
     }
   }
 }
 
+const protectViewsRoute = (req, res, next) => {
+  if (req.url.startsWith("/views")) {
+    checkAuthentication(req, res, next);
+    return res.status(403).send("Access denied");
+  }
+  next();
+};
+
 // Middlewares
+app.use(protectViewsRoute);
 app.use(express.static(path.join(__dirname, "../client")));
 
-app.get("/login", (req, res) => {
+app.get("/login", checkAuthentication, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/login.html"));
 });
 
-app.get("/signup", (req, res) => {
+app.get("/signup", checkAuthentication, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/signup.html"));
 });
 
