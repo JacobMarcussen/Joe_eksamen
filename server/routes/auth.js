@@ -82,7 +82,7 @@ router.delete("/deleteUser", (req, res) => {
     if (err) {
       res.status(500).json({ error: "Failed to delete user" });
     } else {
-      req.clearCookie("user_id");
+      res.clearCookie("user_id");
       res.status(204).send();
     }
   });

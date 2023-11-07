@@ -56,7 +56,7 @@ function setupSignupPage() {
       .then((response) => {
         if (response.status === 200) {
           return response.json();
-        } else if (response.status === 401) {
+        } else if (response.status === 400) {
           return response.json().then((data) => {
             window.alert(data.message);
           });
@@ -65,7 +65,6 @@ function setupSignupPage() {
         }
       })
       .then((data) => {
-        console.log(data);
         if (data) {
           window.location.href = "/login";
         }
