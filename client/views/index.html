@@ -9,6 +9,18 @@
     <link rel="stylesheet" href="../style/index.css" />
   </head>
   <body>
+    <div id="confirmationOverlay" class="overlay">
+      <div id="logoutConfirmationForm" class="confirmation-form">
+        <p>Are you sure you want to log out?</p>
+        <button
+          id="confirmLogoutButton"
+          type="button"
+          style="background-color: rgb(30, 30, 30); color: whitesmoke"
+        >
+          Confirm Log Out
+        </button>
+      </div>
+    </div>
     <header>
       <div class="title" onclick="myFunction(this)">
         <div class="burger_menu_expanded"></div>
@@ -29,8 +41,8 @@
         </div>
       </div>
       <div class="profile">
-        <div class="sign_in">Sign In</div>
-        <div class="sign_up">Sign Up</div>
+        <div id="sign_out">Logout</div>
+        <div id="delete_user">Delete profile</div>
       </div>
     </header>
     <div class="spacer"></div>
@@ -39,7 +51,9 @@
         <div class="front"></div>
         <div class="intro">
           <h1 style="font-size: 40px; margin-bottom: 5px">Juice Joe</h1>
-          <p style="margin-bottom: 40px">Om du til powershake eller tunacado, vi har lige noget til dig!</p>
+          <p style="margin-bottom: 40px">
+            Om du til powershake eller tunacado, vi har lige noget til dig!
+          </p>
           <button>Try Now!</button>
         </div>
       </div>
@@ -50,26 +64,28 @@
         <div class="card" style="background-image: url('../img/avocado.avif')">
           <h1 style="top: -130px">Noget at spise</h1>
           <p>
-            Hos Joe er juice essentielt for os, her har vi en bred variation af forskellige aromaer og
-            smagsfinurligheder. Det er en drøm at smage en Juicey Avodaco, som vores store juicer Niels har most til os.
-            Kunne du tænke dig en gastronomisk oplevelse? så tag et kig forbi JOE. Vi har alt fra shakers, sandwiches,
-            kaffe og vores eget konditori med frisk brød hver morgen. Vi du ønsker et frisk pust om morgen og en dejlig
-            start på dagen, er din lokale juicer altid klar til dig.
+            Hos Joe er juice essentielt for os, her har vi en bred variation af forskellige aromaer
+            og smagsfinurligheder. Det er en drøm at smage en Juicey Avodaco, som vores store juicer
+            Niels har most til os. Kunne du tænke dig en gastronomisk oplevelse? så tag et kig forbi
+            JOE. Vi har alt fra shakers, sandwiches, kaffe og vores eget konditori med frisk brød
+            hver morgen. Vi du ønsker et frisk pust om morgen og en dejlig start på dagen, er din
+            lokale juicer altid klar til dig.
           </p>
         </div>
         <div class="card" style="background-image: url('../img/Power_Shake.avif')">
           <h1 style="top: -130px">Noget at drikke</h1>
           <p>
-            Har du lyst til noget at sluge? Så slug lige et shaker hos Joe, hvis du har ekstra god tid, så sluger du
-            også lige vores juicer Niels bag disken. Hos Joe har vi noget at drikke i alle slags temperatuerer, har du
-            lyst til en varm kaffe med friske bønner fra den sydafrikanske safari? eller frister en iskøllig powershake
-            med arktiske isterining direkte fra nordpolen. Lyder det her for godt til at være sandt? Tja det er det nok,
-            vi har det gådt og du kan have det mangen Gådt med os.
+            Har du lyst til noget at sluge? Så slug lige et shaker hos Joe, hvis du har ekstra god
+            tid, så sluger du også lige vores juicer Niels bag disken. Hos Joe har vi noget at
+            drikke i alle slags temperatuerer, har du lyst til en varm kaffe med friske bønner fra
+            den sydafrikanske safari? eller frister en iskøllig powershake med arktiske isterining
+            direkte fra nordpolen. Lyder det her for godt til at være sandt? Tja det er det nok, vi
+            har det gådt og du kan have det mangen Gådt med os.
           </p>
         </div>
         <p style="margin: 0 30% 0 30%; text-align: center; top: -200px; position: relative">
-          Har du allergier eller føler dig utilpas, så spørg vores biolog og it-supporter Niels bag disken. Der er ikke
-          noget den mand ikke har en mening eller viden om.
+          Har du allergier eller føler dig utilpas, så spørg vores biolog og it-supporter Niels bag
+          disken. Der er ikke noget den mand ikke har en mening eller viden om.
         </p>
         <div class="social">
           <a href="https://www.instagram.com/joeandthejuice" target="_blank"
@@ -87,9 +103,11 @@
           src="../img/small_logo.svg"
           alt="small_logo"
           class="logo"
-          style="position: relative; margin-top: 25px; scale: 1.3" />
+          style="position: relative; margin-top: 25px; scale: 1.3"
+        />
       </div>
     </div>
     <script src="../js/index.js"></script>
+    <script src="../js/user.js"></script>
   </body>
 </html>

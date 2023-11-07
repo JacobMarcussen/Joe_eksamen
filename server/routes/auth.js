@@ -66,4 +66,26 @@ router.post("/signup", (req, res) => {
   });
 });
 
+router.post("/logout", (req, res) => {
+  if (req.body.confirmation === true) {
+    res.clearCookie("user_id");
+    res.status(204).send();
+  } else {
+    res.status(400).json({ error: "Confirmation required" });
+  }
+});
+
+router.delete("/deleteUser", (req, res) => {
+  const userId = req.cookies.user_id;
+  const deleteUserQuery = "DELETE FROM users WHERE id = ?";
+  db.run(deleteUserQuery, [userId], (err) => {
+    if (err) {
+      res.status(500).json({ error: "Failed to delete user" });
+    } else {
+      req.clearCookie("user_id");
+      res.status(204).send();
+    }
+  });
+});
+
 module.exports = router;
