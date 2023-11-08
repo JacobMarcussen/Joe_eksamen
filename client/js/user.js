@@ -66,7 +66,7 @@ function setupSignupPage() {
       })
       .then((data) => {
         if (data) {
-          window.location.href = "/login";
+          window.location.href = "/confirmPhone";
         }
       });
   });
