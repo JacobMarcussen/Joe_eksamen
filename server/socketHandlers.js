@@ -3,28 +3,25 @@ module.exports = (io) => {
 
   function handleConnection(socket) {
     socket.on("join-game", () => {
-      // When a player connects, add them to the waiting queue or pair them if possible
+      // When a player wants to join, add them to the waiting queue or pair them if possible
       if (waitingPlayers.length > 0) {
-        const roomID = "room_" + socket.id; // Create a unique roomID
-        const opponentSocketId = waitingPlayers.shift(); // Get the opponent from the waiting queue
+        // Pair the current socket with the first waiting player
+        const opponentSocketId = waitingPlayers.shift(); // Dequeue the waiting player
 
-        // Make a room for these two players
-        const room = {
-          players: [socket.id, opponentSocketId],
-          // Add more room-related data if needed
-        };
+        // Create a unique room ID using both socket IDs to ensure uniqueness
+        const roomID = `room_${socket.id}_${opponentSocketId}`;
 
-        // Join both players to the room
+        // Both players join the room
         socket.join(roomID);
-        io.to(opponentSocketId).join(roomID);
+        io.sockets.sockets.get(opponentSocketId).join(roomID);
 
         // Notify both players that the game is starting
-        io.in(roomID).emit("message", "Game is starting...");
+        io.to(roomID).emit("message", "Game is starting...");
 
         // Start the game for this room
-        startGame(roomID, room.players);
+        startGame(roomID, [socket.id, opponentSocketId]);
       } else {
-        // No opponents waiting, so wait for one
+        // No opponents waiting, add the player to the waiting queue
         waitingPlayers.push(socket.id);
         socket.emit("message", "Waiting for an opponent...");
       }
