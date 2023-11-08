@@ -88,12 +88,12 @@ function setupConfirmPhone() {
       to: "",
     })
     .then((message) => console.log(message.sid));
-}
 
-const authInput = document.getElementById("SMS_password").value;
-if (authInput === authenticatorCode) {
-  window.alert("You are now authenticated!");
-  window.location.href = "/dashboard";
+  const authInput = document.getElementById("SMS_password").value;
+  if (authInput === authenticatorCode) {
+    window.alert("You are now authenticated!");
+    window.location.href = "/dashboard";
+  }
 }
 
 function setupDashboardPage() {
