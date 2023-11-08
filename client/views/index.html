@@ -7,11 +7,25 @@
     <title>Joe & The Juice</title>
     <link rel="icon" href="../img/small_logo.svg" />
     <link rel="stylesheet" href="../style/index.css" />
+    <link rel="stylesheet" href="../style/game.css" />
   </head>
   <body>
+    <div id="myModal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h1>1v1 Minigame</h1>
+        <input type="text" id="room-id" placeholder="Room ID" />
+        <button id="join-room">Join Room</button>
+        <div id="game-messages"></div>
+        <div id="game">
+          <!-- Your game UI and interaction elements go here -->
+        </div>
+      </div>
+    </div>
     <div id="confirmationOverlay" class="overlay">
       <div id="logoutConfirmationForm" class="confirmation-form">
-        <span id="closeButton" style="float: right; cursor: pointer;">✕</span>
+        <span id="closeButton" style="float: right; cursor: pointer">✕</span>
         <p>Are you sure you want to log out?</p>
         <button
           id="confirmLogoutButton"
@@ -55,7 +69,7 @@
           <p style="margin-bottom: 40px">
             Om du til powershake eller tunacado, vi har lige noget til dig!
           </p>
-          <button>Try Now!</button>
+          <button id="gameBtn">Try Now!</button>
         </div>
       </div>
       <div class="explore">
@@ -108,7 +122,9 @@
         />
       </div>
     </div>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="../js/index.js"></script>
     <script src="../js/user.js"></script>
+    <script src="../js/game.js"></script>
   </body>
 </html>
