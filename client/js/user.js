@@ -71,6 +71,19 @@ function setupSignupPage() {
       });
   });
 }
+function setupConfirmPhone() {
+  const accountSid = 'AC89d27f48eb2c7ba200998c9ce20518e3';
+const authToken = '75c9b67af681e8e78e551b86e021607e';
+const client = require('twilio')(accountSid, authToken);
+
+client.messages
+    .create({
+        body: '',
+        from: 'JoeJuice',
+        to: ''
+    })
+    .then(message => console.log(message.sid))
+}
 
 function setupDashboardPage() {
   const logoutButton = document.getElementById("sign_out");
