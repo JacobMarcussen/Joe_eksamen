@@ -83,6 +83,12 @@ header {
   gap: 30px;
   padding-right: 30px;
 }
+#sign_out {
+  cursor: pointer;
+}
+#delete_user {
+  cursor: pointer;
+}
 
 .back_img {
   position: relative;
