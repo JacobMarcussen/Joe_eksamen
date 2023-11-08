@@ -24,7 +24,7 @@ window.onclick = function (event) {
   }
 };
 
-let socket = io.connect("http://localhost:8000");
+let socket = io.connect("https://joejuice.me/");
 
 let roomIdInput = document.getElementById("room-id");
 let joinRoomButton = document.getElementById("join-room");
