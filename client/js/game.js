@@ -24,10 +24,8 @@ window.onclick = function (event) {
   }
 };
 
-let socket = io.connect("https://joejuice.me/");
-
-let roomIdInput = document.getElementById("room-id");
-let joinRoomButton = document.getElementById("join-room");
+let socket = io.connect();
+let joinGameButton = document.getElementById("join-game");
 let gameMessages = document.getElementById("game-messages");
 
 function addMessage(message) {
@@ -36,13 +34,9 @@ function addMessage(message) {
   gameMessages.appendChild(p);
 }
 
-joinRoomButton.addEventListener("click", function () {
-  let roomID = roomIdInput.value.trim();
-  if (roomID) {
-    socket.emit("join-room", roomID);
-  } else {
-    addMessage("Please enter a room ID.");
-  }
+joinGameButton.addEventListener("click", function () {
+  // Emit a join event immediately upon connection
+  socket.emit("join-game");
 });
 
 socket.on("message", function (message) {

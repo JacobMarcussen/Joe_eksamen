@@ -1,56 +1,41 @@
 module.exports = (io) => {
-  const rooms = {};
+  const waitingPlayers = []; // Queue of players waiting to be paired
 
   function handleConnection(socket) {
-    socket.on("join-room", (roomID) => {
-      if (!rooms[roomID]) {
-        rooms[roomID] = {
-          players: [],
+    socket.on("join-game", () => {
+      // When a player connects, add them to the waiting queue or pair them if possible
+      if (waitingPlayers.length > 0) {
+        const roomID = "room_" + socket.id; // Create a unique roomID
+        const opponentSocketId = waitingPlayers.shift(); // Get the opponent from the waiting queue
+
+        // Make a room for these two players
+        const room = {
+          players: [socket.id, opponentSocketId],
           // Add more room-related data if needed
         };
-      }
 
-      // Only allow two players per room
-      if (rooms[roomID].players.length < 2) {
+        // Join both players to the room
         socket.join(roomID);
-        rooms[roomID].players.push(socket.id);
+        io.to(opponentSocketId).join(roomID);
 
-        // Notify the player that they have joined the room
-        socket.emit("message", `Welcome to room ${roomID}. Waiting for an opponent...`);
+        // Notify both players that the game is starting
+        io.in(roomID).emit("message", "Game is starting...");
 
-        // If two players are now in the room, start the game
-        if (rooms[roomID].players.length === 2) {
-          // Notify both players that the game is starting
-          io.to(roomID).emit("message", "Game is starting...");
-
-          // Start the game for this room
-          startGame(roomID, rooms[roomID].players);
-        }
+        // Start the game for this room
+        startGame(roomID, room.players);
       } else {
-        // Notify user that the room is full
-        socket.emit("message", "Room is full.");
+        // No opponents waiting, so wait for one
+        waitingPlayers.push(socket.id);
+        socket.emit("message", "Waiting for an opponent...");
       }
     });
 
     socket.on("disconnect", () => {
-      // Handle disconnection logic and room cleanup
-      Object.keys(rooms).forEach((roomID) => {
-        const room = rooms[roomID];
-        const index = room.players.indexOf(socket.id);
-        if (index !== -1) {
-          room.players.splice(index, 1);
-          socket.leave(roomID);
-
-          // Notify the remaining player that their opponent left
-          if (room.players.length === 1) {
-            const remainingPlayerId = room.players[0];
-            io.to(remainingPlayerId).emit("message", "Your opponent left the game.");
-          } else if (room.players.length === 0) {
-            // If the room is empty, delete it
-            delete rooms[roomID];
-          }
-        }
-      });
+      // Remove the socket from the waiting queue if it disconnects before pairing
+      const index = waitingPlayers.indexOf(socket.id);
+      if (index !== -1) {
+        waitingPlayers.splice(index, 1);
+      }
     });
   }
 
