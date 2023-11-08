@@ -35,3 +35,10 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+#gameCanvas {
+  display: block; /* Remove default margin */
+  margin: auto; /* Center in the available space */
+  max-height: 90%; /* Limit the height to be within the modal */
+  max-width: 90%; /* Limit the width to be within the modal */
+}

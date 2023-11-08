@@ -44,11 +44,39 @@ socket.on("message", function (message) {
   addMessage(message);
 });
 
-socket.on("game-started", function (message) {
-  // Handle the game start event
-  addMessage(message);
-  // You can add code here to switch to the game view if needed
+document.body.style.overflow = "hidden";
+
+socket.on("game-started", function (joinGameButton, gameMessages) {
+  // Hide the join button and messages
+  joinGameButton.style.display = "none";
+  gameMessages.style.display = "none";
+
+  // Open the modal and adjust its size
+  modal.style.display = "block";
+  modal.style.paddingTop = "5%"; // Push down from the top a bit
+
+  adjustCanvasSize();
 });
+
+function adjustCanvasSize() {
+  var modalWidth = modal.clientWidth; // Width of the modal
+  var modalHeight = modal.clientHeight; // Height of the modal
+  var aspectRatio = 16 / 9; // Aspect ratio of your game
+
+  if (modalWidth / aspectRatio <= modalHeight) {
+    canvas.width = modalWidth;
+    canvas.height = modalWidth / aspectRatio;
+  } else {
+    canvas.height = modalHeight;
+    canvas.width = modalHeight * aspectRatio;
+  }
+
+  // Adjust the canvas style
+  canvas.style.maxWidth = canvas.width + "px";
+  canvas.style.maxHeight = canvas.height + "px";
+}
+
+window.addEventListener("resize", adjustCanvasSize);
 
 // Setup the game canvas
 let canvas = document.getElementById("gameCanvas");
@@ -76,6 +104,16 @@ document.addEventListener("keydown", function (e) {
 function renderGame(state) {
   // Clear canvas
   context.clearRect(0, 0, canvas.width, canvas.height);
+
+  //Defining 2d objects
+  const ballRadius = 5;
+  const paddleHeight = 2;
+  const paddleWidth = 75;
+  const blockWidth = 25;
+  const blockHeight = 10;
+  const blockPadding = 10;
+  const blockOffsetTop = 30;
+  const blockOffsetLeft = 30;
 
   // Draw the ball
   context.beginPath();

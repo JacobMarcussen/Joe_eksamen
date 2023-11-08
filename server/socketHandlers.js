@@ -1,6 +1,51 @@
 module.exports = (io) => {
   const waitingPlayers = []; // Queue of players waiting to be paired
 
+  // Function to create initial blocks
+  function createBlocks() {
+    let blocks = [];
+    for (let i = 0; i < 5; i++) {
+      // Example for 5 rows of blocks
+      blocks[i] = [];
+      for (let j = 0; j < 8; j++) {
+        // Example for 8 blocks per row
+        blocks[i][j] = true; // 'true' indicates a block is present
+      }
+    }
+    return blocks;
+  }
+
+  // Function to initialize a new game state
+  function createGameState() {
+    // Define initial state
+    return {
+      players: [
+        { paddlePos: 50, score: 0, blocks: createBlocks() },
+        { paddlePos: 50, score: 0, blocks: createBlocks() },
+      ],
+      ball: { x: 50, y: 50, vx: 5, vy: 5 },
+      // More game state if necessary
+    };
+  }
+
+  // Game loop function
+  function gameLoop(state) {
+    // Update game state, move ball, check for collisions, etc.
+
+    // Emit the state to both players
+    io.to(state.roomID).emit("game-state", state);
+  }
+
+  // Function called when the game starts
+  function startGame(roomID, players) {
+    const state = createGameState();
+    state.roomID = roomID;
+    // Broadcast initial game state
+    io.to(roomID).emit("game-state", state);
+    // Start the game loop
+    setInterval(() => gameLoop(state), 1000 / 60); // Run at 60 fps
+  }
+
   function handleConnection(socket) {
     socket.on("join-game", () => {
       // When a player wants to join, add them to the waiting queue or pair them if possible
@@ -34,53 +79,6 @@ module.exports = (io) => {
         waitingPlayers.splice(index, 1);
       }
     });
-  }
-
-  function startGame(roomID, players) {
-    // Implement your game logic here to start the 1v1 game
-    // For now, we just notify the players that the game has started
-    io.to(roomID).emit("game-started", "Let the game begin!");
-    // Add more game-specific logic and event handling here
-    // A function to initialize a new game state
-    function createGameState() {
-      // Define initial state
-      return {
-        players: [
-          { paddlePos: 50, score: 0, blocks: createBlocks() },
-          { paddlePos: 50, score: 0, blocks: createBlocks() },
-        ],
-        ball: { x: 50, y: 50, vx: 5, vy: 5 },
-        // More game state if necessary
-      };
-    }
-
-    // A function to create initial blocks
-    function createBlocks() {
-      // Create and return a 2D array representing blocks
-    }
-
-    // Main game loop
-    function gameLoop(state) {
-      if (!state) {
-        return;
-      }
-
-      // Update game state, move ball, check for collisions, etc.
-      // Update paddle positions based on player input
-
-      // Check for line destruction and add to opponent's game if necessary
-
-      // Emit the state to both players
-      io.to(state.roomID).emit("game-state", state);
-    }
-
-    // Function called when the game starts
-    function startGame(roomID, players) {
-      const state = createGameState();
-      state.roomID = roomID;
-      setInterval(() => gameLoop(state), 1000 / 60); // Run at 60 fps
-    }
-    startGame(); // Set up the rest of the server to handle connections, disconnections, and input
   }
 
   return {
