@@ -3,8 +3,9 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const sqlite3 = require("sqlite3").verbose();
-
 const app = express();
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -70,9 +71,15 @@ app.get("/", checkAuthentication, (req, res) => {
 const authRoutes = require("../server/routes/auth.js");
 app.use("/auth", authRoutes);
 
+const socketHandlers = require("../server/socketHandlers.js")(io);
+io.on("connection", (socket) => {
+  console.log("A user connected");
+  socketHandlers.handleConnection(socket);
+});
+
 //Starter server
 const port = 8000;
 
-app.listen(port, () => {
+http.listen(port, () => {
   console.log(`Server open on port ${port}`);
 });
