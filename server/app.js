@@ -63,6 +63,10 @@ app.get("/dashboard", checkAuthentication, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/index.html"));
 });
 
+app.get("/confirm", checkAuthentication, (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/views/confirmPhone.html"));
+});
+
 app.get("/", checkAuthentication, (req, res) => {
   res.redirect("/login");
 });

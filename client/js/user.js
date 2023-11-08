@@ -66,23 +66,34 @@ function setupSignupPage() {
       })
       .then((data) => {
         if (data) {
-          window.location.href = "/confirmPhone";
+          window.location.href = "/confirm";
         }
       });
   });
 }
 function setupConfirmPhone() {
-  const accountSid = 'AC89d27f48eb2c7ba200998c9ce20518e3';
-const authToken = '75c9b67af681e8e78e551b86e021607e';
-const client = require('twilio')(accountSid, authToken);
+  const accountSid = "AC89d27f48eb2c7ba200998c9ce20518e3";
+  const authToken = "75c9b67af681e8e78e551b86e021607e";
+  const client = require("twilio")(accountSid, authToken);
 
-client.messages
+  const authenticatorCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+
+  fetch("/auth/confirm", {}).then((response) => {});
+
+  client.messages
     .create({
-        body: '',
-        from: 'JoeJuice',
-        to: ''
+      body: authenticatorCode,
+      from: "JoeJuice",
+      //Mangler og hente phone nummer fra database
+      to: "",
     })
-    .then(message => console.log(message.sid))
+    .then((message) => console.log(message.sid));
+}
+
+const authInput = document.getElementById("SMS_password").value;
+if (authInput === authenticatorCode) {
+  window.alert("You are now authenticated!");
+  window.location.href = "/dashboard";
 }
 
 function setupDashboardPage() {
@@ -141,4 +152,6 @@ if (currentPage === "/login") {
   setupSignupPage();
 } else if (currentPage === "/dashboard") {
   setupDashboardPage();
+} else if (currentPage === "/confirm") {
+  setupConfirmPhone();
 }

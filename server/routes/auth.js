@@ -32,9 +32,6 @@ router.post("/login", (req, res) => {
 router.post("/signup", (req, res) => {
   const { username, password, email, phone } = req.body;
 
-   // Generer en tilfældig "Authenticator code" mellem 1000 og 9999
-   const authenticatorCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-
   db.get("SELECT * FROM users WHERE username = ?", [username], (err, user) => {
     if (err) {
       return res.status(500).json({ message: "Internal server error" });
