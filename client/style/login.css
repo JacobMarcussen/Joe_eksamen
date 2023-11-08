@@ -58,3 +58,7 @@ button {
   height: auto !important;
   margin-top: 50px;
 }
+
+#SMS_password {
+  text-align: center;
+}
