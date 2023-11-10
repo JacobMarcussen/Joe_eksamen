@@ -21,7 +21,9 @@ db.serialize(() => {
 // Auth
 function checkAuthentication(req, res, next) {
   if (!!req.cookies.user_id) {
-    if (req.path !== "/dashboard") {
+    if (req.path == "/game") {
+      next();
+    } else if (req.path !== "/dashboard") {
       res.redirect("/dashboard");
     } else {
       next();
@@ -61,6 +63,10 @@ app.get("/signup", checkAuthentication, (req, res) => {
 
 app.get("/dashboard", checkAuthentication, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/views/index.html"));
+});
+
+app.get("/game", checkAuthentication, (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/views/game.html"));
 });
 
 app.get("/confirm", checkAuthentication, (req, res) => {

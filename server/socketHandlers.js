@@ -40,6 +40,9 @@ module.exports = (io) => {
   function startGame(roomID, players) {
     const state = createGameState();
     state.roomID = roomID;
+    io.to(roomID).emit("game-started", {
+      message: "The game is about to begin!",
+    });
     // Broadcast initial game state
     io.to(roomID).emit("game-state", state);
     // Start the game loop
