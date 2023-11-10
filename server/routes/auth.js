@@ -45,10 +45,10 @@ router.post("/signup", (req, res) => {
       if (hashErr) {
         return res.status(500).json({ message: "Failed to hash password." });
       }
-
+      const authenticatorCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
       db.run(
-        "INSERT INTO users (username, password, email, phone, authenticatorCode) VALUES (?, ?, ?, ?, ?)",
-        [username, hashedPassword, email, phone],
+        "INSERT INTO users (username, password, email, phone, authenticatorCode, isUserAuth) VALUES (?, ?, ?, ?, ?, ?)",
+        [username, hashedPassword, email, phone, authenticatorCode, false],
         (err) => {
           if (err) {
             return res.status(500).json({ message: "Failed to register user." });

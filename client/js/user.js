@@ -76,7 +76,7 @@ function setupConfirmPhone() {
   const authToken = "75c9b67af681e8e78e551b86e021607e";
   const client = require("twilio")(accountSid, authToken);
 
-  const authenticatorCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+
 
   fetch("/auth/confirm", {}).then((response) => {});
 
