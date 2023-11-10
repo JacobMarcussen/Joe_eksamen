@@ -14,11 +14,9 @@ app.use(cookieParser());
 const db = new sqlite3.Database("database.db");
 db.serialize(() => {
   db.run(
-     "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, phone TEXT, authenticatorCode TEXT, isUserAuth BOOLEAN)"
+    "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, phone TEXT, authenticatorCode TEXT, isUserAuth BOOLEAN)"
   );
-  // db.run(
-  //   "DROP TABLE IF EXISTS users"
-  // )
+  // db.run("DROP TABLE IF EXISTS users");
 });
 
 // Auth
@@ -33,6 +31,8 @@ function checkAuthentication(req, res, next) {
     }
   } else {
     if (req.path == "/signup") {
+      next();
+    } else if (req.path == "/confirm") {
       next();
     } else if (req.path !== "/login") {
       setTimeout(() => {
