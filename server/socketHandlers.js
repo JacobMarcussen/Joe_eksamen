@@ -4,10 +4,10 @@ module.exports = (io) => {
   // Function to create initial blocks
   function createBlocks() {
     let blocks = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
       // Example for 5 rows of blocks
       blocks[i] = [];
-      for (let j = 0; j < 8; j++) {
+      for (let j = 0; j < 12; j++) {
         // Example for 8 blocks per row
         blocks[i][j] = true; // 'true' indicates a block is present
       }

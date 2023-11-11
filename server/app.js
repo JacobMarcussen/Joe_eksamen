@@ -6,6 +6,7 @@ const sqlite3 = require("sqlite3").verbose();
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 app.use(express.json());
@@ -22,13 +23,18 @@ db.serialize(() => {
 
 // Auth
 function checkAuthentication(req, res, next) {
-  if (!!req.cookies.session_token && req.cookies.session_token.isAuth == true) {
-    if (req.path == "/game") {
-      next();
-    } else if (req.path !== "/dashboard") {
-      res.redirect("/dashboard");
-    } else {
-      next();
+  if (!!req.cookies.session_token) {
+    const SECRET_KEY = process.env.SECRET_KEY;
+    const token = req.cookies.session_token;
+    const decoded = jwt.verify(token, SECRET_KEY);
+    if (decoded.isAuth) {
+      if (req.path == "/game") {
+        next();
+      } else if (req.path !== "/dashboard") {
+        res.redirect("/dashboard");
+      } else {
+        next();
+      }
     }
   } else {
     if (req.path == "/signup") {

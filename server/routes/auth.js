@@ -4,8 +4,8 @@ const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("database.db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
 require("dotenv").config();
+
 const SECRET_KEY = process.env.SECRET_KEY;
 const twilioClient = require("twilio")(
   process.env.TWILIO_ACCOUNT_SID,
@@ -25,7 +25,6 @@ router.post("/login", (req, res) => {
       return res.status(401).send("User not found.");
     }
 
-    // Check if the user is authenticated (i.e., their phone is confirmed)
     if (!user.isUserAuth) {
       return res
         .status(401)
@@ -34,18 +33,14 @@ router.post("/login", (req, res) => {
 
     bcrypt.compare(password, user.password).then((isMatch) => {
       if (isMatch) {
-        // User is authenticated and password is a match
-        // Create a JWT token
         const token = jwt.sign(
           { id: user.id, email: user.email, username: user.username, isAuth: user.isUserAuth },
           SECRET_KEY,
-          { expiresIn: "1h" } // Token expires in 1 hour
+          { expiresIn: "1h" }
         );
 
-        // Send the JWT token as an HTTP-only cookie with a new name
         res.cookie("session_token", token, { httpOnly: true, maxAge: 3600000 });
 
-        // Send a response that login was successful
         res.json({ message: "Login successful" });
       } else {
         return res.status(401).send("Invalid email or password");
@@ -65,7 +60,6 @@ router.post("/confirm", (req, res) => {
     const decoded = jwt.verify(token, SECRET_KEY);
     const userEmail = decoded.email;
 
-    // Now fetch the user from the database using the email from the token
     db.get("SELECT * FROM users WHERE email = ?", [userEmail], (err, user) => {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -76,15 +70,11 @@ router.post("/confirm", (req, res) => {
           [true, user.id],
           function (updateErr) {
             if (updateErr) {
-              // Handle error - could not update the user
               res.status(500).json({ error: updateErr.message });
             } else {
-              // Check if the record was updated
               if (this.changes > 0) {
-                // The user was updated successfully
                 res.status(200).json({ message: "User confirmed successfully." });
               } else {
-                // No records were updated - this should not happen if the user exists and the code was correct
                 res.status(404).json({ error: "User not found." });
               }
             }
@@ -117,7 +107,7 @@ router.post("/signup", (req, res) => {
         return res.status(500).json({ message: "Failed to hash password." });
       }
 
-      const authenticatorCode = Math.floor(1000 + Math.random() * 9000); // Generate a 4-digit code
+      const authenticatorCode = Math.floor(1000 + Math.random() * 9000);
 
       db.run(
         "INSERT INTO users (username, password, email, phone, authenticatorCode, isUserAuth) VALUES (?, ?, ?, ?, ?, ?)",
@@ -127,24 +117,20 @@ router.post("/signup", (req, res) => {
             return res.status(500).json({ message: "Failed to register user." });
           }
 
-          // Now the user is inserted, send the token and the verification message
           const token = jwt.sign({ email: email }, SECRET_KEY, { expiresIn: "1h" });
           res.cookie("auth_token", token, { httpOnly: true });
 
-          // Send SMS with Twilio
           twilioClient.messages
             .create({
               body: `Your verification code is: ${authenticatorCode}`,
-              from: "JoeJuice", // Replace with your Twilio number
+              from: "JoeJuice",
               to: phone,
             })
             .then((message) => {
-              // Only send the success response after the SMS is sent
               res.status(200).json({ message: "User registered, verification code sent." });
             })
             .catch((smsError) => {
               console.error("Could not send SMS:", smsError);
-              // Send a different response if SMS sending fails
               res
                 .status(500)
                 .json({ message: "User registered but failed to send verification code." });
