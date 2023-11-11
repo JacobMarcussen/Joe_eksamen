@@ -4,10 +4,12 @@ const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("database.db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const SECRET_KEY = "your_secret_key";
+
+require("dotenv").config();
+const SECRET_KEY = process.env.SECRET_KEY;
 const twilioClient = require("twilio")(
-  "AC89d27f48eb2c7ba200998c9ce20518e3",
-  "75c9b67af681e8e78e551b86e021607e"
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
 );
 
 // Login route
@@ -35,7 +37,7 @@ router.post("/login", (req, res) => {
         // User is authenticated and password is a match
         // Create a JWT token
         const token = jwt.sign(
-          { id: user.id, email: user.email },
+          { id: user.id, email: user.email, username: user.username, isAuth: user.isUserAuth },
           SECRET_KEY,
           { expiresIn: "1h" } // Token expires in 1 hour
         );

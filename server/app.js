@@ -6,6 +6,7 @@ const sqlite3 = require("sqlite3").verbose();
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+require("dotenv").config();
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -21,7 +22,7 @@ db.serialize(() => {
 
 // Auth
 function checkAuthentication(req, res, next) {
-  if (!!req.cookies.session_token) {
+  if (!!req.cookies.session_token && req.cookies.session_token.isAuth == true) {
     if (req.path == "/game") {
       next();
     } else if (req.path !== "/dashboard") {
