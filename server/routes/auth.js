@@ -23,10 +23,28 @@ router.post("/login", (req, res) => {
       return res.status(401).send("User not found.");
     }
 
+    // Check if the user is authenticated (i.e., their phone is confirmed)
+    if (!user.isUserAuth) {
+      return res
+        .status(401)
+        .send("User is not authenticated. Please confirm your phone number first.");
+    }
+
     bcrypt.compare(password, user.password).then((isMatch) => {
       if (isMatch) {
-        res.cookie("user_id", user.id, { maxAge: 900000 });
-        res.redirect("/dashboard");
+        // User is authenticated and password is a match
+        // Create a JWT token
+        const token = jwt.sign(
+          { id: user.id, email: user.email },
+          SECRET_KEY,
+          { expiresIn: "1h" } // Token expires in 1 hour
+        );
+
+        // Send the JWT token as an HTTP-only cookie with a new name
+        res.cookie("session_token", token, { httpOnly: true, maxAge: 3600000 });
+
+        // Send a response that login was successful
+        res.json({ message: "Login successful" });
       } else {
         return res.status(401).send("Invalid email or password");
       }
@@ -37,7 +55,6 @@ router.post("/login", (req, res) => {
 router.post("/confirm", (req, res) => {
   const { code } = req.body;
   const token = req.cookies.auth_token;
-
   if (!token) {
     return res.status(403).json({ message: "No token provided." });
   }
@@ -63,7 +80,7 @@ router.post("/confirm", (req, res) => {
               // Check if the record was updated
               if (this.changes > 0) {
                 // The user was updated successfully
-                res.json({ message: "User confirmed successfully." });
+                res.status(200).json({ message: "User confirmed successfully." });
               } else {
                 // No records were updated - this should not happen if the user exists and the code was correct
                 res.status(404).json({ error: "User not found." });
@@ -120,7 +137,6 @@ router.post("/signup", (req, res) => {
               to: phone,
             })
             .then((message) => {
-              console.log("SMS sent:", message.sid);
               // Only send the success response after the SMS is sent
               res.status(200).json({ message: "User registered, verification code sent." });
             })
@@ -139,7 +155,7 @@ router.post("/signup", (req, res) => {
 
 router.post("/logout", (req, res) => {
   if (req.body.confirmation === true) {
-    res.clearCookie("user_id");
+    res.clearCookie("session_token");
     res.status(204).send();
   } else {
     res.status(400).json({ error: "Confirmation required" });
@@ -153,7 +169,7 @@ router.delete("/deleteUser", (req, res) => {
     if (err) {
       res.status(500).json({ error: "Failed to delete user" });
     } else {
-      res.clearCookie("user_id");
+      res.clearCookie("session_token");
       res.status(204).send();
     }
   });

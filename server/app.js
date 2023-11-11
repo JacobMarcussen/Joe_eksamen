@@ -21,7 +21,7 @@ db.serialize(() => {
 
 // Auth
 function checkAuthentication(req, res, next) {
-  if (!!req.cookies.user_id) {
+  if (!!req.cookies.session_token) {
     if (req.path == "/game") {
       next();
     } else if (req.path !== "/dashboard") {
