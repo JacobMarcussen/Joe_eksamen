@@ -6,6 +6,8 @@ const sqlite3 = require("sqlite3").verbose();
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -14,22 +16,30 @@ app.use(cookieParser());
 const db = new sqlite3.Database("database.db");
 db.serialize(() => {
   db.run(
-    "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, phone TEXT, authenticatorCode TEXT)"
+    "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, phone TEXT, authenticatorCode TEXT, isUserAuth BOOLEAN)"
   );
+  // db.run("DROP TABLE IF EXISTS users");
 });
 
 // Auth
 function checkAuthentication(req, res, next) {
-  if (!!req.cookies.user_id) {
-    if (req.path == "/game") {
-      next();
-    } else if (req.path !== "/dashboard") {
-      res.redirect("/dashboard");
-    } else {
-      next();
+  if (!!req.cookies.session_token) {
+    const SECRET_KEY = process.env.SECRET_KEY;
+    const token = req.cookies.session_token;
+    const decoded = jwt.verify(token, SECRET_KEY);
+    if (decoded.isAuth) {
+      if (req.path == "/game") {
+        next();
+      } else if (req.path !== "/dashboard") {
+        res.redirect("/dashboard");
+      } else {
+        next();
+      }
     }
   } else {
     if (req.path == "/signup") {
+      next();
+    } else if (req.path == "/confirm") {
       next();
     } else if (req.path !== "/login") {
       setTimeout(() => {

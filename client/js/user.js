@@ -72,28 +72,43 @@ function setupSignupPage() {
   });
 }
 function setupConfirmPhone() {
-  const accountSid = "AC89d27f48eb2c7ba200998c9ce20518e3";
-  const authToken = "75c9b67af681e8e78e551b86e021607e";
-  const client = require("twilio")(accountSid, authToken);
+  const authForm = document.getElementById("login_form");
+  authForm.addEventListener("submit", function (e) {
+    e.preventDefault();
 
-  const authenticatorCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+    const authInput = document.getElementById("SMS_password").value;
 
-  fetch("/auth/confirm", {}).then((response) => {});
-
-  client.messages
-    .create({
-      body: authenticatorCode,
-      from: "JoeJuice",
-      //Mangler og hente phone nummer fra database
-      to: "",
+    fetch("/auth/confirm", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ code: authInput }),
     })
-    .then((message) => console.log(message.sid));
-
-  const authInput = document.getElementById("SMS_password").value;
-  if (authInput === authenticatorCode) {
-    window.alert("You are now authenticated!");
-    window.location.href = "/dashboard";
-  }
+      .then((response) => {
+        if (!response.ok) {
+          // If the HTTP status code is not successful, throw an error
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json(); // Parse the JSON in the response
+      })
+      .then((data) => {
+        // Make sure to check if 'data' and 'data.message' exist
+        if (data && data.message) {
+          console.log(data.message);
+          window.location.href = "/login";
+        } else {
+          // If 'data.message' doesn't exist, throw an error
+          throw new Error("No message in response");
+        }
+      })
+      .catch((error) => {
+        // Log or handle any errors that occurred during the fetch
+        console.error("Verification error:", error);
+        alert("Verification failed, please try again.");
+      });
+  });
 }
 
 function setupDashboardPage() {
