@@ -38,21 +38,14 @@ socket.on("game-started", function () {
 let canvas = document.getElementById("gameCanvas");
 let context = canvas.getContext("2d");
 
+document.addEventListener("keydown", (event) => {
+  socket.emit("player-action", { type: "move", direction: event.key });
+});
+
 // Listen for game state updates from the server
 socket.on("game-state", function (state) {
   // Render game based on state
   renderGame(state);
-});
-
-// Function to capture input and send to server
-function sendInput(input) {
-  socket.emit("player-input", input);
-}
-
-// Listen for user input
-document.addEventListener("keydown", function (e) {
-  // Send user input to server
-  sendInput({ key: e.key });
 });
 
 // Function to render the game
@@ -94,8 +87,7 @@ function renderGame(state) {
         if (block) {
           context.beginPath();
           const x = blockIndex * (blockWidth + blockPadding) + blockOffsetLeft;
-          const y =
-            index * (canvas.height / 2) + rowIndex * (blockHeight + blockPadding) + blockOffsetTop;
+          const y = index * (canvas.height / 2) + rowIndex * (blockHeight + blockPadding) + blockOffsetTop;
           context.rect(x, y, blockWidth, blockHeight);
           context.fillStyle = "#0095DD";
           context.fill();
