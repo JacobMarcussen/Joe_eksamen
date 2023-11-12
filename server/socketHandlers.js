@@ -1,19 +1,36 @@
 module.exports = (io) => {
   const waitingPlayers = []; // Queue of players waiting to be paired
   const gameStates = {};
+  const socketToRoom = {};
+  const gameIntervals = {}; // Store the intervals for each game
 
   // Function to create initial blocks
   function createBlocks() {
     let blocks = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 3; i++) {
       // Example for 5 rows of blocks
       blocks[i] = [];
-      for (let j = 0; j < 12; j++) {
+      for (let j = 0; j < 6; j++) {
         // Example for 8 blocks per row
         blocks[i][j] = true; // 'true' indicates a block is present
       }
     }
     return blocks;
+  }
+
+  // When creating a room or joining a room, you would set the mapping
+  function joinRoom(socketId, roomID) {
+    socketToRoom[socketId] = roomID;
+  }
+
+  // When leaving a room or disconnecting, you would delete the mapping
+  function leaveRoom(socketId) {
+    delete socketToRoom[socketId];
+  }
+
+  // This is how you could implement the findRoomIDBySocketID function
+  function findRoomIDBySocketID(socketId) {
+    return socketToRoom[socketId];
   }
 
   // Function to initialize a new game state
@@ -34,10 +51,21 @@ module.exports = (io) => {
     return newState;
   }
 
+  // Placeholder collision detection functions
+  function ballHitsPaddle(ball, paddle) {
+    // Implement collision detection logic here
+    return false;
+  }
+
+  function ballHitsBlock(ball, block) {
+    // Implement collision detection logic here
+    return false;
+  }
+
   // Game loop function
   function gameLoop(state) {
-    const canvasWidth = 800;
-    const canvasHeight = 600;
+    const canvasWidth = 1500;
+    const canvasHeight = 700;
     state.ball.x += state.ball.vx;
     state.ball.y += state.ball.vy;
 
@@ -49,8 +77,46 @@ module.exports = (io) => {
       state.ball.vy *= -1; // Reverse the ball's vertical velocity
     }
 
+    checkCollisions(state);
+    checkGameOver(state);
+
     // Emit the state to both players
     io.to(state.roomID).emit("game-state", state);
+  }
+
+  function checkCollisions(state) {
+    // Pseudocode for collision detection
+    state.players.forEach((player) => {
+      if (ballHitsPaddle(state.ball, player.paddle)) {
+        state.ball.vy *= -1; // Reverse ball direction
+      }
+    });
+
+    state.players.forEach((player) => {
+      player.blocks.forEach((block, index) => {
+        if (block && ballHitsBlock(state.ball, block)) {
+          player.blocks[index] = false; // Remove the block
+          state.ball.vy *= -1; // Reverse ball direction
+        }
+      });
+    });
+
+    // Additional logic for what happens when all blocks are gone, game scoring, etc.
+  }
+
+  function checkGameOver(state) {
+    // Pseudocode for game over conditions
+    if (state.players.some((player) => player.blocks.every((row) => row.every((block) => !block)))) {
+      // All blocks are cleared, the game is over
+      endGame(state);
+    }
+  }
+
+  function endGame(state) {
+    clearInterval(gameIntervals[state.roomID]); // Stop the game loop
+    io.to(state.roomID).emit("game-over", { message: "Game over!" });
+    delete gameStates[state.roomID]; // Clean up the game state
+    delete gameIntervals[state.roomID]; // Clean up the game interval
   }
 
   // Function called when the game starts
@@ -83,7 +149,7 @@ module.exports = (io) => {
         // Create a unique room ID using both socket IDs to ensure uniqueness
         const roomID = `room_${socket.id}_${opponentSocketId}`;
 
-        // Both players join the room
+        joinRoom(socket.id, roomID);
         socket.join(roomID);
         io.sockets.sockets.get(opponentSocketId).join(roomID);
 
@@ -109,7 +175,10 @@ module.exports = (io) => {
         return;
       }
       const player = state.players.find((p) => p.id === socket.id);
-
+      if (!player) {
+        console.error("Player not found for action:", action);
+        return; // Player not found, exit early
+      }
       // Handle the movement action, update the player's paddle position
       if (action.type === "move") {
         // Pseudocode: Adjust the paddle position based on the direction of movement
@@ -126,39 +195,16 @@ module.exports = (io) => {
       io.to(roomID).emit("game-state", state);
     });
 
-    function checkCollisions(state) {
-      // Pseudocode for collision detection
-      state.players.forEach((player) => {
-        if (ballHitsPaddle(state.ball, player.paddle)) {
-          state.ball.vy *= -1; // Reverse ball direction
-        }
-      });
-
-      state.players.forEach((player) => {
-        player.blocks.forEach((block, index) => {
-          if (block && ballHitsBlock(state.ball, block)) {
-            player.blocks[index] = false; // Remove the block
-            state.ball.vy *= -1; // Reverse ball direction
-          }
-        });
-      });
-
-      // Additional logic for what happens when all blocks are gone, game scoring, etc.
-    }
-
-    function checkGameOver(state) {
-      // Pseudocode for game over conditions
-      if (state.players.some((player) => player.blocks.every((row) => row.every((block) => !block)))) {
-        // All blocks are cleared, the game is over
-        endGame(state);
-      }
-    }
-
     socket.on("disconnect", () => {
       // Remove the socket from the waiting queue if it disconnects before pairing
       const index = waitingPlayers.indexOf(socket.id);
       if (index !== -1) {
         waitingPlayers.splice(index, 1);
+      }
+      const roomID = findRoomIDBySocketID(socket.id);
+      if (roomID) {
+        // Do any cleanup necessary for the player leaving the room
+        leaveRoom(socket.id);
       }
     });
   }

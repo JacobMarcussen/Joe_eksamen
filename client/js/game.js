@@ -38,6 +38,14 @@ socket.on("game-started", function () {
 let canvas = document.getElementById("gameCanvas");
 let context = canvas.getContext("2d");
 
+let dpr = window.devicePixelRatio || 1;
+let rect = canvas.getBoundingClientRect();
+
+canvas.width = rect.width * dpr;
+canvas.height = rect.height * dpr;
+
+context.scale(dpr, dpr);
+
 document.addEventListener("keydown", (event) => {
   socket.emit("player-action", { type: "move", direction: event.key });
 });
@@ -58,11 +66,11 @@ function renderGame(state) {
   const ballRadius = 5;
   const paddleHeight = 2;
   const paddleWidth = 75;
-  const blockWidth = 25;
-  const blockHeight = 10;
-  const blockPadding = 10;
-  const blockOffsetTop = 30;
-  const blockOffsetLeft = 30;
+  const blockWidth = 10;
+  const blockHeight = 5;
+  const blockPadding = 5;
+  const blockOffsetTop = 1;
+  const blockOffsetLeft = 1;
 
   // Draw the ball
   context.beginPath();
