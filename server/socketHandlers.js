@@ -39,8 +39,8 @@ module.exports = (io) => {
     const newState = {
       // Initial state setup...
       players: [
-        { paddlePos: 50, score: 0, blocks: createBlocks() },
-        { paddlePos: 50, score: 0, blocks: createBlocks() },
+        { paddlePos: 300, score: 0, blocks: createBlocks() },
+        { paddlePos: 300, score: 0, blocks: createBlocks() },
       ],
       ball: { x: 50, y: 50, vx: 5, vy: 5 },
       // More game state if necessary

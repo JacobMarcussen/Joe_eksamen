@@ -82,7 +82,10 @@ function renderGame(state) {
   // Draw player paddles
   state.players.forEach((player) => {
     context.beginPath();
-    context.rect(player.paddlePos, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+    const paddleX = (canvas.width - paddleWidth) / 2;
+    // Set the paddle's Y position to be a little above the bottom of the canvas
+    const paddleY = canvas.height - paddleHeight - 10; // 10 pixels above the bottom
+    context.rect(paddleX, paddleY, paddleWidth, paddleHeight);
     context.fillStyle = "#0095DD";
     context.fill();
     context.closePath();
