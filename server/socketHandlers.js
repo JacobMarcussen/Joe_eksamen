@@ -123,10 +123,11 @@ module.exports = (io) => {
   function startGame(roomID, playerSockets) {
     const state = createGameState(roomID);
 
-    state.players[0].id = playerSockets[0].id;
+    state.players[0].id = playerSockets[0];
+
     if (playerSockets[1]) {
       // Multiplayer game
-      state.players[1].id = playerSockets[1].id;
+      state.players[1].id = playerSockets[1];
     }
 
     state.roomID = roomID;
@@ -188,7 +189,7 @@ module.exports = (io) => {
           player.paddlePos += 10; // Move right
         }
         // Ensure the paddle stays within the game boundaries
-        const gameWidth = 800; // Replace with actual game width
+        const gameWidth = 1500; // Replace with actual game width
         const paddleWidth = 100; // Replace with actual paddle width
         player.paddlePos = Math.max(Math.min(player.paddlePos, gameWidth - paddleWidth), 0);
       }
