@@ -1,49 +1,45 @@
 module.exports = (io) => {
-  const waitingPlayers = []; // Queue of players waiting to be paired
+  const waitingPlayers = [];
   const gameStates = {};
   const socketToRoom = {};
-  const gameIntervals = {}; // Store the intervals for each game
+  const gameIntervals = {};
 
-  // Function to create initial blocks
+  //Create Blocks
   function createBlocks() {
     let blocks = [];
-    for (let i = 0; i < 3; i++) {
-      // Example for 5 rows of blocks
+    //5 rækker
+    for (let i = 0; i < 5; i++) {
       blocks[i] = [];
-      for (let j = 0; j < 6; j++) {
-        // Example for 8 blocks per row
-        blocks[i][j] = true; // 'true' indicates a block is present
+      //12 kolonner
+      for (let j = 0; j < 12; j++) {
+        blocks[i][j] = true;
       }
     }
     return blocks;
   }
 
-  // When creating a room or joining a room, you would set the mapping
+  //set the mapping
   function joinRoom(socketId, roomID) {
     socketToRoom[socketId] = roomID;
   }
 
-  // When leaving a room or disconnecting, you would delete the mapping
+  //delete the mapping
   function leaveRoom(socketId) {
     delete socketToRoom[socketId];
   }
 
-  // This is how you could implement the findRoomIDBySocketID function
+  //Finder rigtige rum
   function findRoomIDBySocketID(socketId) {
     return socketToRoom[socketId];
   }
 
-  // Function to initialize a new game state
+  //new game state
   function createGameState(roomID) {
-    // Define initial state
     const newState = {
-      // Initial state setup...
       players: [
-        { paddlePos: 300, score: 0, blocks: createBlocks(), ball: { x: 50, y: 50, vx: 5, vy: 5 } },
-        { paddlePos: 300, score: 0, blocks: createBlocks(), ball: { x: 50, y: 50, vx: 5, vy: 5 } },
+        { paddlePos: 375, score: 0, blocks: createBlocks(), ball: { x: 375, y: 350, vx: 5, vy: 5, radius: 5 } },
+        { paddlePos: 375, score: 0, blocks: createBlocks(), ball: { x: 375, y: 350, vx: 5, vy: 5, radius: 5 } },
       ],
-
-      // More game state if necessary
     };
 
     // Store the new state in the gameStates object
@@ -53,7 +49,6 @@ module.exports = (io) => {
 
   // Placeholder collision detection functions
   function ballHitsPaddle(ball, paddle) {
-    // Implement collision detection logic here
     return false;
   }
 
@@ -66,6 +61,7 @@ module.exports = (io) => {
   function gameLoop(state) {
     const canvasWidth = 1500;
     const canvasHeight = 700;
+    const ballRadius = 5;
 
     state.players.forEach((player, index) => {
       if (!player.ball) {
@@ -77,14 +73,18 @@ module.exports = (io) => {
       ball.x += ball.vx;
       ball.y += ball.vy;
 
-      const leftBoundary = (index * canvasWidth) / 2;
-      const rightBoundary = leftBoundary + canvasWidth / 2;
+      const leftBoundary = 0;
+      const rightBoundary = canvasWidth / 2;
 
-      if (ball.x < leftBoundary || ball.x > rightBoundary) {
+      if (ball.x - ballRadius < leftBoundary || ball.x + ballRadius > rightBoundary) {
         ball.vx *= -1;
+        ball.x = Math.max(ball.x, ballRadius);
+        ball.x = Math.min(ball.x, rightBoundary - ballRadius);
       }
-      if (ball.y < 0 || ball.y > canvasHeight) {
+      if (ball.y - ballRadius < 0 || ball.y + ballRadius > canvasHeight) {
         ball.vy *= -1;
+        ball.y = Math.max(ball.y, ballRadius);
+        ball.y = Math.min(ball.y, canvasHeight - ballRadius);
       }
 
       checkCollisions(state);
@@ -97,27 +97,14 @@ module.exports = (io) => {
   }
 
   function checkCollisions(state) {
-    // Pseudocode for collision detection
     state.players.forEach((player) => {
       if (ballHitsPaddle(state.ball, player.paddle)) {
         state.ball.vy *= -1; // Reverse ball direction
       }
     });
-
-    state.players.forEach((player) => {
-      player.blocks.forEach((block, index) => {
-        if (block && ballHitsBlock(state.ball, block)) {
-          player.blocks[index] = false; // Remove the block
-          state.ball.vy *= -1; // Reverse ball direction
-        }
-      });
-    });
-
-    // Additional logic for what happens when all blocks are gone, game scoring, etc.
   }
 
   function checkGameOver(state) {
-    // Pseudocode for game over conditions
     if (state.players.some((player) => player.blocks.every((row) => row.every((block) => !block)))) {
       // All blocks are cleared, the game is over
       endGame(state);
@@ -183,7 +170,6 @@ module.exports = (io) => {
       // Determine which player sent the action
       const roomID = findRoomIDBySocketID(socket.id); // Implement this function based on your room management logic
       const state = gameStates[roomID];
-      console.log(state);
       if (!state) {
         console.error("No game state found for room:", roomID);
         return;
