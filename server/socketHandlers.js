@@ -39,10 +39,10 @@ module.exports = (io) => {
     const newState = {
       // Initial state setup...
       players: [
-        { paddlePos: 300, score: 0, blocks: createBlocks() },
-        { paddlePos: 300, score: 0, blocks: createBlocks() },
+        { paddlePos: 300, score: 0, blocks: createBlocks(), ball: { x: 50, y: 50, vx: 5, vy: 5 } },
+        { paddlePos: 300, score: 0, blocks: createBlocks(), ball: { x: 50, y: 50, vx: 5, vy: 5 } },
       ],
-      ball: { x: 50, y: 50, vx: 5, vy: 5 },
+
       // More game state if necessary
     };
 
@@ -66,21 +66,33 @@ module.exports = (io) => {
   function gameLoop(state) {
     const canvasWidth = 1500;
     const canvasHeight = 700;
-    state.ball.x += state.ball.vx;
-    state.ball.y += state.ball.vy;
 
-    // Collision detection for walls
-    if (state.ball.x < 0 || state.ball.x > canvasWidth) {
-      state.ball.vx *= -1; // Reverse the ball's horizontal velocity
-    }
-    if (state.ball.y < 0 || state.ball.y > canvasHeight) {
-      state.ball.vy *= -1; // Reverse the ball's vertical velocity
-    }
+    state.players.forEach((player, index) => {
+      if (!player.ball) {
+        console.error("Ball object not found for player", index);
+        return; // Skip this iteration
+      }
+      const ball = player.ball;
 
-    checkCollisions(state);
-    checkGameOver(state);
+      ball.x += ball.vx;
+      ball.y += ball.vy;
 
-    // Emit the state to both players
+      const leftBoundary = (index * canvasWidth) / 2;
+      const rightBoundary = leftBoundary + canvasWidth / 2;
+
+      if (ball.x < leftBoundary || ball.x > rightBoundary) {
+        ball.vx *= -1;
+      }
+      if (ball.y < 0 || ball.y > canvasHeight) {
+        ball.vy *= -1;
+      }
+
+      checkCollisions(state);
+
+      checkGameOver(state);
+    });
+
+    // Emit the updated state to both players
     io.to(state.roomID).emit("game-state", state);
   }
 
@@ -151,6 +163,7 @@ module.exports = (io) => {
         const roomID = `room_${socket.id}_${opponentSocketId}`;
 
         joinRoom(socket.id, roomID);
+        joinRoom(opponentSocketId, roomID);
         socket.join(roomID);
         io.sockets.sockets.get(opponentSocketId).join(roomID);
 
@@ -170,7 +183,7 @@ module.exports = (io) => {
       // Determine which player sent the action
       const roomID = findRoomIDBySocketID(socket.id); // Implement this function based on your room management logic
       const state = gameStates[roomID];
-
+      console.log(state);
       if (!state) {
         console.error("No game state found for room:", roomID);
         return;
@@ -182,15 +195,14 @@ module.exports = (io) => {
       }
       // Handle the movement action, update the player's paddle position
       if (action.type === "move") {
-        // Pseudocode: Adjust the paddle position based on the direction of movement
+        const gameWidth = 1500;
+        const paddleWidth = 100;
         if (action.direction === "ArrowLeft") {
-          player.paddlePos -= 10; // Move left
+          player.paddlePos = Math.max(player.paddlePos - 10, 0);
         } else if (action.direction === "ArrowRight") {
-          player.paddlePos += 10; // Move right
+          player.paddlePos = Math.min(player.paddlePos + 10, gameWidth / 2 - paddleWidth);
         }
-        // Ensure the paddle stays within the game boundaries
-        const gameWidth = 1500; // Replace with actual game width
-        const paddleWidth = 100; // Replace with actual paddle width
+
         player.paddlePos = Math.max(Math.min(player.paddlePos, gameWidth - paddleWidth), 0);
       }
       io.to(roomID).emit("game-state", state);

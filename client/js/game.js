@@ -21,10 +21,12 @@ socket.on("message", function (message) {
 document.body.style.overflow = "hidden";
 
 socket.on("game-started", function () {
-  var joinGameButton = document.getElementById("join-game");
-  var gameMessages = document.getElementById("game-messages");
+  let gameCanvas = document.getElementById("gameCanvas");
+  let joinGameButton = document.getElementById("join-game");
+  let gameMessages = document.getElementById("game-messages");
 
-  // Check if elements exist before trying to change their styles
+  gameCanvas.style.border = "1px solid rgba(247, 193, 217, 1)";
+
   if (joinGameButton) {
     joinGameButton.style.display = "none";
   }
@@ -72,35 +74,41 @@ function renderGame(state) {
   const blockOffsetTop = 1;
   const blockOffsetLeft = 1;
 
-  // Draw the ball
   context.beginPath();
-  context.arc(state.ball.x, state.ball.y, ballRadius, 0, Math.PI * 2);
-  context.fillStyle = "#0095DD";
-  context.fill();
-  context.closePath();
+  context.moveTo(canvas.width / 2, 0);
+  context.lineTo(canvas.width / 2, canvas.height);
+  context.strokeStyle = "rgba(247, 193, 217, 1)";
+  context.stroke();
 
-  // Draw player paddles
-  state.players.forEach((player) => {
+  state.players.forEach((player, index) => {
+    // Calculate offset for each player's side
+    const playerOffsetX = index * (canvas.width / 2);
+    // Draw the ball
     context.beginPath();
-    const paddleX = player.paddlePos;
+    context.arc(player.ball.x + playerOffsetX, player.ball.y, ballRadius, 0, Math.PI * 2);
+    context.fillStyle = "rgba(247, 193, 217, 1)";
+    context.fill();
+    context.closePath();
+
+    // Draw player paddles
+    context.beginPath();
+    const paddleX = player.paddlePos + playerOffsetX;
     // Set the paddle's Y position to be a little above the bottom of the canvas
     const paddleY = canvas.height - paddleHeight - 10; // 10 pixels above the bottom
     context.rect(paddleX, paddleY, paddleWidth, paddleHeight);
-    context.fillStyle = "#0095DD";
+    context.fillStyle = "rgba(247, 193, 217, 1)";
     context.fill();
     context.closePath();
-  });
 
-  // Draw blocks
-  state.players.forEach((player, index) => {
+    // Draw blocks
     player.blocks.forEach((row, rowIndex) => {
       row.forEach((block, blockIndex) => {
         if (block) {
           context.beginPath();
-          const x = blockIndex * (blockWidth + blockPadding) + blockOffsetLeft;
+          const x = playerOffsetX + blockIndex * (blockWidth + blockPadding) + blockOffsetLeft;
           const y = index * (canvas.height / 2) + rowIndex * (blockHeight + blockPadding) + blockOffsetTop;
           context.rect(x, y, blockWidth, blockHeight);
-          context.fillStyle = "#0095DD";
+          context.fillStyle = "rgba(247, 193, 217, 1)";
           context.fill();
           context.closePath();
         }

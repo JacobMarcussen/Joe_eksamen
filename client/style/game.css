@@ -11,6 +11,6 @@
 #gameCanvas {
   width: 1500px;
   height: 700px;
-  max-width: 100%; /* This ensures the canvas is responsive and won't be larger than its parent container */
-  aspect-ratio: unset; /* This removes any aspect ratio control from CSS */
+  max-width: 100%;
+  aspect-ratio: unset;
 }
