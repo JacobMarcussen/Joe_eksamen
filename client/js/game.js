@@ -40,14 +40,6 @@ socket.on("game-started", function () {
 let canvas = document.getElementById("gameCanvas");
 let context = canvas.getContext("2d");
 
-let dpr = window.devicePixelRatio || 1;
-let rect = canvas.getBoundingClientRect();
-
-canvas.width = rect.width * dpr;
-canvas.height = rect.height * dpr;
-
-context.scale(dpr, dpr);
-
 document.addEventListener("keydown", (event) => {
   socket.emit("player-action", { type: "move", direction: event.key });
 });
