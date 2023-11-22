@@ -14,24 +14,40 @@ if (window.location.pathname === "/dashboard") {
     window.location.href = "/game";
   });
 }
-function getAllUsers() {
-  fetch("/leaderboard", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => {
-      if (response.ok) {
-        console.log(response);
-        console.log(response.json());
-        return response.json(); // Parse the JSON in the response
-      }
-    })
-    .catch((error) => {
-      // Log or handle any errors that occurred during the fetch
-      console.error("Verification error:", error);
-      alert("Verification failed, please try again.");
+async function getAllUsers() {
+  try {
+    const response = await fetch("/leaderboard", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok.");
+    }
+
+    const data = await response.json();
+    return data.users;
+  } catch (error) {
+    console.error("Fetching error:", error);
+  }
 }
-getAllUsers();
+
+async function insertUsersInLeaderboard() {
+  const users = await getAllUsers();
+  const leaderboardRow = document.getElementsByClassName("række");
+  const leaderboardUsername = document.getElementsByClassName("brugernavn");
+  const leaderboardScore = document.getElementsByClassName("score");
+
+  for (let i = 0; i < leaderboardRow.length; i++) {
+    leaderboardRow[i].style.display = "none";
+  }
+
+  for (let i = 0; i < users.length; i++) {
+    leaderboardRow[i].style.display = "flex";
+    leaderboardUsername[i].innerHTML = `#${i + 1} ` + users[i].username;
+    leaderboardScore[i].innerHTML = `Score: ` + users[i].gameScore;
+  }
+}
+insertUsersInLeaderboard();

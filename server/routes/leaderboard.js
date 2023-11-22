@@ -9,9 +9,9 @@ require("dotenv").config();
 // const SECRET_KEY = process.env.SECRET_KEY;
 
 router.get("/leaderboard", (req, res) => {
-  db.all("SELECT username, gameScore FROM users ORDER BY score DESC", (err, users) => {
+  db.all("SELECT username, gameScore FROM users ORDER BY gameScore DESC LIMIT 10", (err, users) => {
     if (err) {
-      return res.status(500).json({ error: err.message });
+      throw err;
     }
     if (users.length > 0) {
       return res.status(200).json({ users });
