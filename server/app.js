@@ -16,7 +16,7 @@ app.use(cookieParser());
 const db = new sqlite3.Database("database.db");
 db.serialize(() => {
   db.run(
-    "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, phone TEXT, authenticatorCode TEXT, isUserAuth BOOLEAN)"
+    "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, phone TEXT, authenticatorCode TEXT, isUserAuth BOOLEAN, gameScore INTEGER)"
   );
   // db.run("DROP TABLE IF EXISTS users");
 });
@@ -90,6 +90,9 @@ app.get("/", checkAuthentication, (req, res) => {
 //Importing routes
 const authRoutes = require("../server/routes/auth.js");
 app.use("/auth", authRoutes);
+
+const leaderboardRoutes = require("../server/routes/leaderboard.js");
+app.use("/", leaderboardRoutes);
 
 const socketHandlers = require("../server/socketHandlers.js")(io);
 io.on("connection", (socket) => {

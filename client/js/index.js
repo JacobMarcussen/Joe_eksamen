@@ -14,3 +14,24 @@ if (window.location.pathname === "/dashboard") {
     window.location.href = "/game";
   });
 }
+function getAllUsers() {
+  fetch("/leaderboard", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (response.ok) {
+        console.log(response);
+        console.log(response.json());
+        return response.json(); // Parse the JSON in the response
+      }
+    })
+    .catch((error) => {
+      // Log or handle any errors that occurred during the fetch
+      console.error("Verification error:", error);
+      alert("Verification failed, please try again.");
+    });
+}
+getAllUsers();

@@ -7,7 +7,10 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const SECRET_KEY = process.env.SECRET_KEY;
-const twilioClient = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const twilioClient = require("twilio")(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
 // Login route
 router.post("/login", (req, res) => {
@@ -23,13 +26,21 @@ router.post("/login", (req, res) => {
     }
 
     if (!user.isUserAuth) {
-      return res.status(401).send("User is not authenticated. Please confirm your phone number first.");
+      return res
+        .status(401)
+        .send("User is not authenticated. Please confirm your phone number first.");
     }
 
     bcrypt.compare(password, user.password).then((isMatch) => {
       if (isMatch) {
         const token = jwt.sign(
-          { id: user.id, email: user.email, username: user.username, isAuth: user.isUserAuth },
+          {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            isAuth: user.isUserAuth,
+            gameScore: user.gameScore,
+          },
           SECRET_KEY,
           { expiresIn: "1h" }
         );
@@ -60,17 +71,21 @@ router.post("/confirm", (req, res) => {
         return res.status(500).json({ error: err.message });
       }
       if (user.authenticatorCode === code) {
-        db.run("UPDATE users SET isUserAuth = ? WHERE id = ?", [true, user.id], function (updateErr) {
-          if (updateErr) {
-            res.status(500).json({ error: updateErr.message });
-          } else {
-            if (this.changes > 0) {
-              res.status(200).json({ message: "User confirmed successfully." });
+        db.run(
+          "UPDATE users SET isUserAuth = ? WHERE id = ?",
+          [true, user.id],
+          function (updateErr) {
+            if (updateErr) {
+              res.status(500).json({ error: updateErr.message });
             } else {
-              res.status(404).json({ error: "User not found." });
+              if (this.changes > 0) {
+                res.status(200).json({ message: "User confirmed successfully." });
+              } else {
+                res.status(404).json({ error: "User not found." });
+              }
             }
           }
-        });
+        );
       } else {
         res.status(401).json({ error: "Invalid code." });
       }
@@ -93,6 +108,7 @@ router.post("/signup", (req, res) => {
       return res.status(400).json({ message: "Username is already in use." });
     }
 
+    //Hasher password med 10 salt rounds
     bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
       if (hashErr) {
         return res.status(500).json({ message: "Failed to hash password." });
@@ -101,8 +117,8 @@ router.post("/signup", (req, res) => {
       const authenticatorCode = Math.floor(1000 + Math.random() * 9000);
 
       db.run(
-        "INSERT INTO users (username, password, email, phone, authenticatorCode, isUserAuth) VALUES (?, ?, ?, ?, ?, ?)",
-        [username, hashedPassword, email, phone, authenticatorCode, false],
+        "INSERT INTO users (username, password, email, phone, authenticatorCode, isUserAuth, gameScore) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [username, hashedPassword, email, phone, authenticatorCode, false, 0],
         function (insertErr) {
           if (insertErr) {
             return res.status(500).json({ message: "Failed to register user." });
@@ -122,7 +138,9 @@ router.post("/signup", (req, res) => {
             })
             .catch((smsError) => {
               console.error("Could not send SMS:", smsError);
-              res.status(500).json({ message: "User registered but failed to send verification code." });
+              res
+                .status(500)
+                .json({ message: "User registered but failed to send verification code." });
             });
         }
       );
