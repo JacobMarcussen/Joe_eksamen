@@ -40,9 +40,31 @@ socket.on("game-started", function () {
 let canvas = document.getElementById("gameCanvas");
 let context = canvas.getContext("2d");
 
+let leftKeyPressed = false;
+let rightKeyPressed = false;
 document.addEventListener("keydown", (event) => {
-  socket.emit("player-action", { type: "move", direction: event.key });
+  if (event.key === "ArrowLeft" && !leftKeyPressed) {
+    leftKeyPressed = true;
+    socket.emit("player-action", { type: "move", direction: "left", state: "down" });
+  } else if (event.key === "ArrowRight" && !rightKeyPressed) {
+    rightKeyPressed = true;
+    socket.emit("player-action", { type: "move", direction: "right", state: "down" });
+  }
 });
+
+document.addEventListener("keyup", (event) => {
+  if (event.key === "ArrowLeft" && leftKeyPressed) {
+    leftKeyPressed = false;
+    socket.emit("player-action", { type: "move", direction: "left", state: "up" });
+  } else if (event.key === "ArrowRight" && rightKeyPressed) {
+    rightKeyPressed = false;
+    socket.emit("player-action", { type: "move", direction: "right", state: "up" });
+  }
+});
+
+// document.addEventListener("keydown", (event) => {
+//   socket.emit("player-action", { type: "move", direction: event.key });
+// });
 
 // Listen for game state updates from the server
 socket.on("game-state", function (state) {
@@ -56,13 +78,12 @@ function renderGame(state) {
 
   //2d objects
   const ballRadius = 5;
-  const paddleHeight = 2;
+  const paddleHeight = 5;
   const paddleWidth = 75;
   const blockWidth = 41;
   const blockHeight = 30;
   const blockPadding = 20;
   const blockOffsetTop = 20;
-  const blockOffsetLeft = 20;
 
   //Streg i midten
   context.beginPath();
@@ -91,18 +112,26 @@ function renderGame(state) {
     context.closePath();
 
     //Blocks
-    player.blocks.forEach((row, rowIndex) => {
-      row.forEach((block, blockIndex) => {
-        if (block) {
-          context.beginPath();
-          const x = playerOffsetX + blockIndex * (blockWidth + blockPadding) + blockOffsetLeft;
-          const y = rowIndex * (blockHeight + blockPadding) + blockOffsetTop;
-          context.rect(x, y, blockWidth, blockHeight);
-          context.fillStyle = "rgba(247, 193, 217, 1)";
-          context.fill();
-          context.closePath();
-        }
+    context.beginPath();
+    state.players.forEach((player, playerIndex) => {
+      const totalBlocksWidth = blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
+      // Calculate the starting x-coordinate for the blocks relative to each player's area
+      const playerAreaStartX = playerIndex * (canvas.width / 2);
+      const playerAreaWidth = canvas.width / 2;
+      const gridStartX = playerAreaStartX + (playerAreaWidth - totalBlocksWidth) / 2;
+
+      player.blocks.forEach((row, rowIndex) => {
+        row.forEach((block, blockIndex) => {
+          if (block) {
+            const x = gridStartX + blockIndex * (blockWidth + blockPadding);
+            const y = rowIndex * (blockHeight + blockPadding) + blockOffsetTop;
+            context.rect(x, y, blockWidth, blockHeight);
+          }
+        });
       });
     });
+    context.fillStyle = "rgba(247, 193, 217, 1)";
+    context.fill();
+    context.closePath();
   });
 }

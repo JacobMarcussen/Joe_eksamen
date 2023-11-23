@@ -37,8 +37,22 @@ module.exports = (io) => {
   function createGameState(roomID) {
     const newState = {
       players: [
-        { paddlePos: 375, score: 0, blocks: createBlocks(), ball: { x: 375, y: 350, vx: 5, vy: 5, radius: 5 } },
-        { paddlePos: 375, score: 0, blocks: createBlocks(), ball: { x: 375, y: 350, vx: 5, vy: 5, radius: 5 } },
+        {
+          paddlePos: 375,
+          score: 0,
+          blocks: createBlocks(),
+          ball: { x: 375, y: 350, vx: 2, vy: 2, radius: 5 },
+          movingLeft: false,
+          movingRight: false,
+        },
+        {
+          paddlePos: 375,
+          score: 0,
+          blocks: createBlocks(),
+          ball: { x: 375, y: 350, vx: 2, vy: 2, radius: 5 },
+          movingLeft: false,
+          movingRight: false,
+        },
       ],
     };
 
@@ -47,14 +61,55 @@ module.exports = (io) => {
     return newState;
   }
 
-  // Placeholder collision detection functions
   function ballHitsPaddle(ball, paddle) {
-    return false;
+    const paddleWidth = 75; // Assuming the width of the paddle
+    const paddleHeight = 5; // Assuming the height of the paddle
+    const canvasHeight = 700;
+
+    const paddleY = canvasHeight - paddleHeight - 10;
+    // Check if the ball's position overlaps with the paddle's position
+    return (
+      ball.x + ball.radius > paddle.paddlePos &&
+      ball.x - ball.radius < paddle.paddlePos + paddleWidth &&
+      ball.y + ball.radius > paddleY &&
+      ball.y - ball.radius < canvasHeight
+    );
   }
 
-  function ballHitsBlock(ball, block) {
-    // Implement collision detection logic here
-    return false;
+  function ballHitsBlock(ball, blocks) {
+    const blockWidth = 41;
+    const blockHeight = 30;
+    const blockPadding = 20;
+    const blockOffsetTop = 20;
+    const blockOffsetLeft = 20;
+
+    for (let i = 0; i < blocks.length; i++) {
+      for (let j = 0; j < blocks[i].length; j++) {
+        if (blocks[i][j]) {
+          const blockX = j * (blockWidth + blockPadding) + blockOffsetLeft;
+          const blockY = i * (blockHeight + blockPadding) + blockOffsetTop;
+
+          // Define the edges of the ball
+          const ballLeftEdge = ball.x - ball.radius;
+          const ballRightEdge = ball.x + ball.radius;
+          const ballTopEdge = ball.y - ball.radius;
+          const ballBottomEdge = ball.y + ball.radius;
+
+          // Check if the ball's edges intersect with the block
+          if (
+            ballRightEdge > blockX &&
+            ballLeftEdge < blockX + blockWidth &&
+            ballBottomEdge > blockY &&
+            ballTopEdge < blockY + blockHeight
+          ) {
+            blocks[i][j] = false; // Block destroyed
+
+            return true; // Collision detected
+          }
+        }
+      }
+    }
+    return false; // No collision detected
   }
 
   // Game loop function
@@ -64,6 +119,15 @@ module.exports = (io) => {
     const ballRadius = 5;
 
     state.players.forEach((player, index) => {
+      const paddleMoveSpeed = 8; // Adjust this speed as needed
+
+      if (player.movingLeft) {
+        player.paddlePos = Math.max(player.paddlePos - paddleMoveSpeed, 0);
+      }
+      if (player.movingRight) {
+        player.paddlePos = Math.min(player.paddlePos + paddleMoveSpeed, 1500 / 2 - 75);
+      }
+
       if (!player.ball) {
         console.error("Ball object not found for player", index);
         return; // Skip this iteration
@@ -98,8 +162,13 @@ module.exports = (io) => {
 
   function checkCollisions(state) {
     state.players.forEach((player) => {
-      if (ballHitsPaddle(state.ball, player.paddle)) {
-        state.ball.vy *= -1; // Reverse ball direction
+      if (ballHitsPaddle(player.ball, player)) {
+        player.ball.vy *= -1; // Reverse ball direction
+      }
+
+      if (ballHitsBlock(player.ball, player.blocks)) {
+        player.ball.vy *= -1; // Reverse ball direction
+        // Optionally add logic to update the score or game state
       }
     });
   }
@@ -136,7 +205,7 @@ module.exports = (io) => {
     // Broadcast initial game state
     io.to(roomID).emit("game-state", state);
     // Start the game loop
-    setInterval(() => gameLoop(state), 1000 / 60); // Run at 60 fps
+    setInterval(() => gameLoop(state), 1000 / 200); // Run at 60 fps
   }
 
   function handleConnection(socket) {
@@ -167,8 +236,7 @@ module.exports = (io) => {
     });
 
     socket.on("player-action", (action) => {
-      // Determine which player sent the action
-      const roomID = findRoomIDBySocketID(socket.id); // Implement this function based on your room management logic
+      const roomID = findRoomIDBySocketID(socket.id);
       const state = gameStates[roomID];
       if (!state) {
         console.error("No game state found for room:", roomID);
@@ -177,21 +245,17 @@ module.exports = (io) => {
       const player = state.players.find((p) => p.id === socket.id);
       if (!player) {
         console.error("Player not found for action:", action);
-        return; // Player not found, exit early
+        return;
       }
-      // Handle the movement action, update the player's paddle position
-      if (action.type === "move") {
-        const gameWidth = 1500;
-        const paddleWidth = 100;
-        if (action.direction === "ArrowLeft") {
-          player.paddlePos = Math.max(player.paddlePos - 10, 0);
-        } else if (action.direction === "ArrowRight") {
-          player.paddlePos = Math.min(player.paddlePos + 10, gameWidth / 2 - paddleWidth);
-        }
 
-        player.paddlePos = Math.max(Math.min(player.paddlePos, gameWidth - paddleWidth), 0);
+      // Update the player's movement state
+      if (action.type === "move") {
+        if (action.direction === "left") {
+          player.movingLeft = action.state === "down";
+        } else if (action.direction === "right") {
+          player.movingRight = action.state === "down";
+        }
       }
-      io.to(roomID).emit("game-state", state);
     });
 
     socket.on("disconnect", () => {
