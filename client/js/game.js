@@ -82,8 +82,8 @@ function renderGame(state) {
   const paddleWidth = 75;
   const blockWidth = 41;
   const blockHeight = 30;
-  const blockPadding = 20;
-  const blockOffsetTop = 20;
+  const blockPadding = 50;
+  const blockOffsetTop = 40;
 
   //Streg i midten
   context.beginPath();
@@ -105,7 +105,7 @@ function renderGame(state) {
     //Paddle
     context.beginPath();
     const paddleX = player.paddlePos + playerOffsetX;
-    const paddleY = canvas.height - paddleHeight - 10;
+    const paddleY = canvas.height - paddleHeight - 60;
     context.rect(paddleX, paddleY, paddleWidth, paddleHeight);
     context.fillStyle = "rgba(247, 193, 217, 1)";
     context.fill();

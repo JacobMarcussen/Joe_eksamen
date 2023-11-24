@@ -8,10 +8,10 @@ module.exports = (io) => {
   function createBlocks() {
     let blocks = [];
     //5 rækker
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 4; i++) {
       blocks[i] = [];
       //12 kolonner
-      for (let j = 0; j < 12; j++) {
+      for (let j = 0; j < 8; j++) {
         blocks[i][j] = true;
       }
     }
@@ -66,22 +66,27 @@ module.exports = (io) => {
     const paddleHeight = 5; // Assuming the height of the paddle
     const canvasHeight = 700;
 
-    const paddleY = canvasHeight - paddleHeight - 10;
-    // Check if the ball's position overlaps with the paddle's position
-    return (
-      ball.x + ball.radius > paddle.paddlePos &&
-      ball.x - ball.radius < paddle.paddlePos + paddleWidth &&
-      ball.y + ball.radius > paddleY &&
-      ball.y - ball.radius < canvasHeight
-    );
+    const paddleTopY = canvasHeight - paddleHeight - 60;
+    const paddleBottomY = canvasHeight - 60;
+
+    // Check if the ball is within the horizontal range of the paddle
+    const withinPaddleHorizontal =
+      ball.x + ball.radius > paddle.paddlePos && ball.x - ball.radius < paddle.paddlePos + paddleWidth;
+
+    // Check if the ball is colliding with the top surface of the paddle
+    const collidesWithTopOfPaddle =
+      ball.y + ball.radius > paddleTopY && // Ball is below the top edge of the paddle
+      ball.y - ball.radius < paddleBottomY; // Ball's top is above the paddle's bottom
+
+    return withinPaddleHorizontal && collidesWithTopOfPaddle;
   }
 
   function ballHitsBlock(ball, blocks) {
     const blockWidth = 41;
     const blockHeight = 30;
-    const blockPadding = 20;
-    const blockOffsetTop = 20;
-    const blockOffsetLeft = 20;
+    const blockPadding = 50;
+    const blockOffsetTop = 40;
+    const blockOffsetLeft = 40;
 
     for (let i = 0; i < blocks.length; i++) {
       for (let j = 0; j < blocks[i].length; j++) {
@@ -89,13 +94,11 @@ module.exports = (io) => {
           const blockX = j * (blockWidth + blockPadding) + blockOffsetLeft;
           const blockY = i * (blockHeight + blockPadding) + blockOffsetTop;
 
-          // Define the edges of the ball
           const ballLeftEdge = ball.x - ball.radius;
           const ballRightEdge = ball.x + ball.radius;
           const ballTopEdge = ball.y - ball.radius;
           const ballBottomEdge = ball.y + ball.radius;
 
-          // Check if the ball's edges intersect with the block
           if (
             ballRightEdge > blockX &&
             ballLeftEdge < blockX + blockWidth &&
@@ -103,6 +106,24 @@ module.exports = (io) => {
             ballTopEdge < blockY + blockHeight
           ) {
             blocks[i][j] = false; // Block destroyed
+
+            // Find the closest edge
+            const closestEdge = {
+              x: ball.vx > 0 ? blockX - 1 : blockX + blockWidth + 1,
+              y: ball.vy > 0 ? blockY - 1 : blockY + blockHeight + 1,
+            };
+
+            // Determine the side of the collision
+            const verticalOverlap = ball.vy > 0 ? ballBottomEdge - blockY : blockY + blockHeight - ballTopEdge;
+            const horizontalOverlap = ball.vx > 0 ? ballRightEdge - blockX : blockX + blockWidth - ballLeftEdge;
+
+            if (verticalOverlap < horizontalOverlap) {
+              ball.vy *= -1; // Reverse vertical direction
+              ball.y = closestEdge.y; // Adjust ball y position to be outside the block
+            } else {
+              ball.vx *= -1; // Reverse horizontal direction
+              ball.x = closestEdge.x; // Adjust ball x position to be outside the block
+            }
 
             return true; // Collision detected
           }
@@ -123,8 +144,7 @@ module.exports = (io) => {
 
       if (player.movingLeft) {
         player.paddlePos = Math.max(player.paddlePos - paddleMoveSpeed, 0);
-      }
-      if (player.movingRight) {
+      } else if (player.movingRight) {
         player.paddlePos = Math.min(player.paddlePos + paddleMoveSpeed, 1500 / 2 - 75);
       }
 
@@ -132,6 +152,9 @@ module.exports = (io) => {
         console.error("Ball object not found for player", index);
         return; // Skip this iteration
       }
+
+      checkCollisions(state);
+
       const ball = player.ball;
 
       ball.x += ball.vx;
@@ -150,9 +173,6 @@ module.exports = (io) => {
         ball.y = Math.max(ball.y, ballRadius);
         ball.y = Math.min(ball.y, canvasHeight - ballRadius);
       }
-
-      checkCollisions(state);
-
       checkGameOver(state);
     });
 
@@ -164,10 +184,16 @@ module.exports = (io) => {
     state.players.forEach((player) => {
       if (ballHitsPaddle(player.ball, player)) {
         player.ball.vy *= -1; // Reverse ball direction
+        if (player.ball.vy > 0) {
+          // Ball moving downwards, place it below the paddle
+          player.ball.y = 700 - 5 - 60 + player.ball.radius + 1;
+        } else {
+          // Ball moving upwards, place it above the paddle
+          player.ball.y = 700 - 5 - 60 - player.ball.radius - 1;
+        }
       }
 
       if (ballHitsBlock(player.ball, player.blocks)) {
-        player.ball.vy *= -1; // Reverse ball direction
         // Optionally add logic to update the score or game state
       }
     });
@@ -205,7 +231,7 @@ module.exports = (io) => {
     // Broadcast initial game state
     io.to(roomID).emit("game-state", state);
     // Start the game loop
-    setInterval(() => gameLoop(state), 1000 / 200); // Run at 60 fps
+    setInterval(() => gameLoop(state), 1000 / 300); // Run at 60 fps
   }
 
   function handleConnection(socket) {
