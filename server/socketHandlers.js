@@ -6,6 +6,18 @@ module.exports = (io) => {
   const socketToRoom = {};
   const gameIntervals = {};
 
+  const canvasHeight = 700;
+  const canvasWidth = 1500;
+  const paddleHeight = 5;
+  const ballRadius = 5;
+  const canvasBottomToPaddle = 60;
+  const paddleWidth = 75;
+
+  const baseRes = { width: 1920, height: 1080 };
+  let paddleMoveSpeed = 10;
+  let verticalSpeed = 3;
+  let horizontalSpeed = 3;
+
   //Create Blocks
   function createBlocks() {
     let blocks = [];
@@ -37,21 +49,22 @@ module.exports = (io) => {
 
   //new game state
   function createGameState(roomID) {
+    const initialBlocks = createBlocks();
     const newState = {
       players: [
         {
           paddlePos: 375,
           score: 0,
-          blocks: createBlocks(),
-          ball: { x: 375, y: 350, vx: 1, vy: 1, radius: 5 },
+          blocks: initialBlocks,
+          ball: { x: 375, y: 350, vx: horizontalSpeed, vy: verticalSpeed, radius: ballRadius },
           movingLeft: false,
           movingRight: false,
         },
         {
           paddlePos: 375,
           score: 0,
-          blocks: createBlocks(),
-          ball: { x: 375, y: 350, vx: 1, vy: 1, radius: 5 },
+          blocks: initialBlocks,
+          ball: { x: 375, y: 350, vx: horizontalSpeed, vy: verticalSpeed, radius: ballRadius },
           movingLeft: false,
           movingRight: false,
         },
@@ -64,17 +77,12 @@ module.exports = (io) => {
   }
 
   function ballHitsPaddle(ball, paddle) {
-    const paddleWidth = 75; // Assuming the width of the paddle
-    const paddleHeight = 5; // Assuming the height of the paddle
-    const canvasHeight = 700;
-
-    const paddleTopY = canvasHeight - paddleHeight - 60;
-    const paddleBottomY = canvasHeight - 60;
+    const paddleTopY = canvasHeight - paddleHeight - canvasBottomToPaddle;
+    const paddleBottomY = canvasHeight - canvasBottomToPaddle;
 
     // Check if the ball is within the horizontal range of the paddle
     const withinPaddleHorizontal =
-      ball.x + ball.radius > paddle.paddlePos &&
-      ball.x - ball.radius < paddle.paddlePos + paddleWidth;
+      ball.x + ball.radius > paddle.paddlePos && ball.x - ball.radius < paddle.paddlePos + paddleWidth;
 
     // Check if the ball is colliding with the top surface of the paddle
     const collidesWithTopOfPaddle =
@@ -117,10 +125,8 @@ module.exports = (io) => {
             };
 
             // Determine the side of the collision
-            const verticalOverlap =
-              ball.vy > 0 ? ballBottomEdge - blockY : blockY + blockHeight - ballTopEdge;
-            const horizontalOverlap =
-              ball.vx > 0 ? ballRightEdge - blockX : blockX + blockWidth - ballLeftEdge;
+            const verticalOverlap = ball.vy > 0 ? ballBottomEdge - blockY : blockY + blockHeight - ballTopEdge;
+            const horizontalOverlap = ball.vx > 0 ? ballRightEdge - blockX : blockX + blockWidth - ballLeftEdge;
 
             if (verticalOverlap < horizontalOverlap) {
               ball.vy *= -1; // Reverse vertical direction
@@ -140,17 +146,11 @@ module.exports = (io) => {
 
   // Game loop function
   function gameLoop(state) {
-    const canvasWidth = 1500;
-    const canvasHeight = 700;
-    const ballRadius = 5;
-
     state.players.forEach((player, index) => {
-      const paddleMoveSpeed = 4; // Adjust this speed as needed
-
       if (player.movingLeft) {
         player.paddlePos = Math.max(player.paddlePos - paddleMoveSpeed, 0);
       } else if (player.movingRight) {
-        player.paddlePos = Math.min(player.paddlePos + paddleMoveSpeed, 1500 / 2 - 75);
+        player.paddlePos = Math.min(player.paddlePos + paddleMoveSpeed, canvasWidth / 2 - paddleWidth);
       }
 
       if (!player.ball) {
@@ -191,10 +191,10 @@ module.exports = (io) => {
         player.ball.vy *= -1; // Reverse ball direction
         if (player.ball.vy > 0) {
           // Ball moving downwards, place it below the paddle
-          player.ball.y = 700 - 5 - 60 + player.ball.radius + 1;
+          player.ball.y = canvasHeight - paddleHeight - canvasBottomToPaddle + player.ball.radius + 1;
         } else {
           // Ball moving upwards, place it above the paddle
-          player.ball.y = 700 - 5 - 60 - player.ball.radius - 1;
+          player.ball.y = canvasHeight - paddleHeight - canvasBottomToPaddle - player.ball.radius - 1;
         }
       }
 
@@ -210,7 +210,7 @@ module.exports = (io) => {
   function checkGameOver(state) {
     const isGameOver = state.players.some((player) => {
       // Check if the ball hits the ground
-      if (player.ball.y + player.ball.radius >= 695) {
+      if (player.ball.y + player.ball.radius >= canvasHeight - 5) {
         return true;
       }
 
@@ -228,10 +228,10 @@ module.exports = (io) => {
   }
 
   function endGame(state) {
-    io.to(state.roomID).emit("game-over", { message: "Game over!", redirectTo: "/dashboard" });
     clearInterval(gameIntervals[state.roomID]); // Stop the game loop
     delete gameStates[state.roomID]; // Clean up the game state
     delete gameIntervals[state.roomID]; // Clean up the game interval
+    io.to(state.roomID).emit("game-over", { message: "Game over!", redirectTo: "/dashboard" });
   }
 
   //game start
@@ -251,11 +251,17 @@ module.exports = (io) => {
     // Broadcast initial game state
     io.to(roomID).emit("game-state", state);
     // Start the game loop
-    setInterval(() => gameLoop(state), 1000 / 200); // Run at 60 fps
+    gameIntervals[state.roomID] = setInterval(() => gameLoop(state), 1000 / 200); // Run at 60 fps
   }
 
   function handleConnection(socket) {
-    socket.on("join-game", () => {
+    socket.on("join-game", (resolution) => {
+      // Udregner paddleMoveSpeed og boldens hastighed ud fra skærmopløsningen
+      const scaleFactor = resolution.screenWidth / baseRes.width;
+      paddleMoveSpeed = 10 * scaleFactor;
+      verticalSpeed = 3 * scaleFactor;
+      horizontalSpeed = 3 * scaleFactor;
+
       // When a player wants to join, add them to the waiting queue or pair them if possible
       if (waitingPlayers.length > 0) {
         // Pair the current socket with the first waiting player

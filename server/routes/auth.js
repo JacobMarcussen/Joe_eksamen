@@ -7,10 +7,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const SECRET_KEY = process.env.SECRET_KEY;
-const twilioClient = require("twilio")(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+const twilioClient = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // Login route
 router.post("/login", (req, res) => {
@@ -26,9 +23,7 @@ router.post("/login", (req, res) => {
     }
 
     if (!user.isUserAuth) {
-      return res
-        .status(401)
-        .send("User is not authenticated. Please confirm your phone number first.");
+      return res.status(401).send("User is not authenticated. Please confirm your phone number first.");
     }
 
     bcrypt.compare(password, user.password).then((isMatch) => {
@@ -46,6 +41,7 @@ router.post("/login", (req, res) => {
         );
 
         res.cookie("session_token", token, { httpOnly: true, maxAge: 3600000 });
+        res.cookie("current_user", user.username, { httpOnly: false, maxAge: 3600000 });
 
         res.json({ message: "Login successful" });
       } else {
@@ -71,21 +67,17 @@ router.post("/confirm", (req, res) => {
         return res.status(500).json({ error: err.message });
       }
       if (user.authenticatorCode === code) {
-        db.run(
-          "UPDATE users SET isUserAuth = ? WHERE id = ?",
-          [true, user.id],
-          function (updateErr) {
-            if (updateErr) {
-              res.status(500).json({ error: updateErr.message });
+        db.run("UPDATE users SET isUserAuth = ? WHERE id = ?", [true, user.id], function (updateErr) {
+          if (updateErr) {
+            res.status(500).json({ error: updateErr.message });
+          } else {
+            if (this.changes > 0) {
+              res.status(200).json({ message: "User confirmed successfully." });
             } else {
-              if (this.changes > 0) {
-                res.status(200).json({ message: "User confirmed successfully." });
-              } else {
-                res.status(404).json({ error: "User not found." });
-              }
+              res.status(404).json({ error: "User not found." });
             }
           }
-        );
+        });
       } else {
         res.status(401).json({ error: "Invalid code." });
       }
@@ -138,9 +130,7 @@ router.post("/signup", (req, res) => {
             })
             .catch((smsError) => {
               console.error("Could not send SMS:", smsError);
-              res
-                .status(500)
-                .json({ message: "User registered but failed to send verification code." });
+              res.status(500).json({ message: "User registered but failed to send verification code." });
             });
         }
       );
@@ -151,6 +141,7 @@ router.post("/signup", (req, res) => {
 router.post("/logout", (req, res) => {
   if (req.body.confirmation === true) {
     res.clearCookie("session_token");
+    res.clearCookie("current_user");
     res.status(204).send();
   } else {
     res.status(400).json({ error: "Confirmation required" });
@@ -165,6 +156,7 @@ router.delete("/deleteUser", (req, res) => {
       res.status(500).json({ error: "Failed to delete user" });
     } else {
       res.clearCookie("session_token");
+      res.clearCookie("current_user");
       res.status(204).send();
     }
   });

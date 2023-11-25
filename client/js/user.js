@@ -165,7 +165,7 @@ if (currentPage === "/login") {
   setupLoginPage();
 } else if (currentPage === "/signup") {
   setupSignupPage();
-} else if (currentPage === "/dashboard") {
+} else if (currentPage === "/dashboard" || "/game") {
   setupDashboardPage();
 } else if (currentPage === "/confirm") {
   setupConfirmPhone();
