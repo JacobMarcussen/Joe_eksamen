@@ -14,3 +14,8 @@
   max-width: 100%;
   aspect-ratio: unset;
 }
+
+#playerScores {
+  display: none;
+  gap: 700px;
+}

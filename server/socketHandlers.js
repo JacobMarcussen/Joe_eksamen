@@ -1,3 +1,5 @@
+const { Socket } = require("socket.io");
+
 module.exports = (io) => {
   const waitingPlayers = [];
   const gameStates = {};
@@ -71,7 +73,8 @@ module.exports = (io) => {
 
     // Check if the ball is within the horizontal range of the paddle
     const withinPaddleHorizontal =
-      ball.x + ball.radius > paddle.paddlePos && ball.x - ball.radius < paddle.paddlePos + paddleWidth;
+      ball.x + ball.radius > paddle.paddlePos &&
+      ball.x - ball.radius < paddle.paddlePos + paddleWidth;
 
     // Check if the ball is colliding with the top surface of the paddle
     const collidesWithTopOfPaddle =
@@ -114,8 +117,10 @@ module.exports = (io) => {
             };
 
             // Determine the side of the collision
-            const verticalOverlap = ball.vy > 0 ? ballBottomEdge - blockY : blockY + blockHeight - ballTopEdge;
-            const horizontalOverlap = ball.vx > 0 ? ballRightEdge - blockX : blockX + blockWidth - ballLeftEdge;
+            const verticalOverlap =
+              ball.vy > 0 ? ballBottomEdge - blockY : blockY + blockHeight - ballTopEdge;
+            const horizontalOverlap =
+              ball.vx > 0 ? ballRightEdge - blockX : blockX + blockWidth - ballLeftEdge;
 
             if (verticalOverlap < horizontalOverlap) {
               ball.vy *= -1; // Reverse vertical direction
@@ -194,21 +199,34 @@ module.exports = (io) => {
       }
 
       if (ballHitsBlock(player.ball, player.blocks)) {
-        // Optionally add logic to update the score or game state
+        player.score++;
+        io.to(state.roomID).emit("score", {
+          score: [state.players[0].score, state.players[1].score],
+        });
       }
     });
   }
 
   function checkGameOver(state) {
-    if (state.players.some((player) => player.blocks.every((row) => row.every((block) => !block)))) {
+    if (
+      state.players.some((player) => player.blocks.every((row) => row.every((block) => !block)))
+    ) {
       // All blocks are cleared, the game is over
       endGame(state);
     }
   }
 
   function endGame(state) {
-    clearInterval(gameIntervals[state.roomID]); // Stop the game loop
+    // const winner =
+    //   state.players[0].score > state.players[1].score ? state.players[0] : state.players[1];
+    // const loser =
+    //   state.players[0].score > state.players[1].score ? state.players[1] : state.players[0];
+    // console.log(state.roomID);
+
+    // io.to(winner).emit("game-over", { message: "You won!" });
+    // io.to(loser).emit("game-over", { message: "You lost!" });
     io.to(state.roomID).emit("game-over", { message: "Game over!" });
+    clearInterval(gameIntervals[state.roomID]); // Stop the game loop
     delete gameStates[state.roomID]; // Clean up the game state
     delete gameIntervals[state.roomID]; // Clean up the game interval
   }

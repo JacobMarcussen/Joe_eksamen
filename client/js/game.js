@@ -24,6 +24,7 @@ socket.on("game-started", function () {
   let gameCanvas = document.getElementById("gameCanvas");
   let joinGameButton = document.getElementById("join-game");
   let gameMessages = document.getElementById("game-messages");
+  let playerScores = document.getElementById("playerScores");
 
   gameCanvas.style.border = "1px solid rgba(247, 193, 217, 1)";
 
@@ -33,6 +34,9 @@ socket.on("game-started", function () {
 
   if (gameMessages) {
     gameMessages.style.display = "none";
+  }
+  if (playerScores) {
+    playerScores.style.display = "inline-flex";
   }
 });
 
@@ -62,14 +66,23 @@ document.addEventListener("keyup", (event) => {
   }
 });
 
-// document.addEventListener("keydown", (event) => {
-//   socket.emit("player-action", { type: "move", direction: event.key });
-// });
-
 // Listen for game state updates from the server
 socket.on("game-state", function (state) {
   // Render game based on state
   renderGame(state);
+});
+
+socket.on("score", function (scores) {
+  let player1Score = document.getElementById("player1Score");
+  let player2Score = document.getElementById("player2Score");
+
+  player1Score.innerText = "Score: " + scores.score[0];
+  player2Score.innerText = "Score: " + scores.score[1];
+});
+
+socket.on("game-over", function (data) {
+  console.log(data);
+  alert(data.message);
 });
 
 function renderGame(state) {
@@ -114,7 +127,8 @@ function renderGame(state) {
     //Blocks
     context.beginPath();
     state.players.forEach((player, playerIndex) => {
-      const totalBlocksWidth = blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
+      const totalBlocksWidth =
+        blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
       // Calculate the starting x-coordinate for the blocks relative to each player's area
       const playerAreaStartX = playerIndex * (canvas.width / 2);
       const playerAreaWidth = canvas.width / 2;
