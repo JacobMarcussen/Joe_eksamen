@@ -20,11 +20,13 @@ socket.on("message", function (message) {
 
 document.body.style.overflow = "hidden";
 
-socket.on("game-started", function () {
+socket.on("game-started", function (data) {
   let gameCanvas = document.getElementById("gameCanvas");
   let joinGameButton = document.getElementById("join-game");
   let gameMessages = document.getElementById("game-messages");
   let playerScores = document.getElementById("playerScores");
+
+  gameMessages.innerHTML = data.message;
 
   gameCanvas.style.border = "1px solid rgba(247, 193, 217, 1)";
 
@@ -78,11 +80,17 @@ socket.on("score", function (scores) {
 
   player1Score.innerText = "Score: " + scores.score[0];
   player2Score.innerText = "Score: " + scores.score[1];
+  if (scores.score[0] === 32) {
+    alert("Player 1 won!");
+  }
+  if (scores.score[1] === 32) {
+    alert("Player 2 won!");
+  }
 });
 
 socket.on("game-over", function (data) {
-  console.log(data);
   alert(data.message);
+  window.location.href = data.redirectTo;
 });
 
 function renderGame(state) {

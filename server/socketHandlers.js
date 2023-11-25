@@ -43,7 +43,7 @@ module.exports = (io) => {
           paddlePos: 375,
           score: 0,
           blocks: createBlocks(),
-          ball: { x: 375, y: 350, vx: 2, vy: 2, radius: 5 },
+          ball: { x: 375, y: 350, vx: 1, vy: 1, radius: 5 },
           movingLeft: false,
           movingRight: false,
         },
@@ -51,7 +51,7 @@ module.exports = (io) => {
           paddlePos: 375,
           score: 0,
           blocks: createBlocks(),
-          ball: { x: 375, y: 350, vx: 2, vy: 2, radius: 5 },
+          ball: { x: 375, y: 350, vx: 1, vy: 1, radius: 5 },
           movingLeft: false,
           movingRight: false,
         },
@@ -145,7 +145,7 @@ module.exports = (io) => {
     const ballRadius = 5;
 
     state.players.forEach((player, index) => {
-      const paddleMoveSpeed = 8; // Adjust this speed as needed
+      const paddleMoveSpeed = 4; // Adjust this speed as needed
 
       if (player.movingLeft) {
         player.paddlePos = Math.max(player.paddlePos - paddleMoveSpeed, 0);
@@ -208,37 +208,39 @@ module.exports = (io) => {
   }
 
   function checkGameOver(state) {
-    if (
-      state.players.some((player) => player.blocks.every((row) => row.every((block) => !block)))
-    ) {
-      // All blocks are cleared, the game is over
+    const isGameOver = state.players.some((player) => {
+      // Check if the ball hits the ground
+      if (player.ball.y + player.ball.radius >= 695) {
+        return true;
+      }
+
+      // Check if all blocks are cleared
+      if (player.blocks.every((row) => row.every((block) => !block))) {
+        return true;
+      }
+
+      return false;
+    });
+
+    if (isGameOver) {
       endGame(state);
     }
   }
 
   function endGame(state) {
-    // const winner =
-    //   state.players[0].score > state.players[1].score ? state.players[0] : state.players[1];
-    // const loser =
-    //   state.players[0].score > state.players[1].score ? state.players[1] : state.players[0];
-    // console.log(state.roomID);
-
-    // io.to(winner).emit("game-over", { message: "You won!" });
-    // io.to(loser).emit("game-over", { message: "You lost!" });
-    io.to(state.roomID).emit("game-over", { message: "Game over!" });
+    io.to(state.roomID).emit("game-over", { message: "Game over!", redirectTo: "/dashboard" });
     clearInterval(gameIntervals[state.roomID]); // Stop the game loop
     delete gameStates[state.roomID]; // Clean up the game state
     delete gameIntervals[state.roomID]; // Clean up the game interval
   }
 
-  // Function called when the game starts
+  //game start
   function startGame(roomID, playerSockets) {
     const state = createGameState(roomID);
 
     state.players[0].id = playerSockets[0];
 
     if (playerSockets[1]) {
-      // Multiplayer game
       state.players[1].id = playerSockets[1];
     }
 
@@ -249,7 +251,7 @@ module.exports = (io) => {
     // Broadcast initial game state
     io.to(roomID).emit("game-state", state);
     // Start the game loop
-    setInterval(() => gameLoop(state), 1000 / 300); // Run at 60 fps
+    setInterval(() => gameLoop(state), 1000 / 200); // Run at 60 fps
   }
 
   function handleConnection(socket) {
