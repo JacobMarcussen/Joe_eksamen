@@ -241,13 +241,12 @@ module.exports = (io) => {
   function endGame(state) {
     const loser = state.players.find((player) => player.ballMissed);
     const winnerId = loser ? state.players.find((player) => player.id !== loser.id).id : null;
-    console.log(winnerId);
 
     clearInterval(gameIntervals[state.roomID]); // Stop the game loop
     delete gameStates[state.roomID]; // Clean up the game state
     delete gameIntervals[state.roomID]; // Clean up the game interval
     io.to(state.roomID).emit("game-over", {
-      message: "Game over!",
+      message: "You Won! Game over",
       winnerId: winnerId,
       redirectTo: "/dashboard",
     });

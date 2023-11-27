@@ -1,7 +1,13 @@
 let socket = io.connect();
 let joinGameButton = document.getElementById("join-game");
 let gameMessages = document.getElementById("game-messages");
+//Henter socket.id'et på brugeren, så den korrekte vinder kan findes
+let mySocketId;
+socket.on("connect", () => {
+  mySocketId = socket.id;
+});
 
+//Henter cookien med brugernavn
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -20,8 +26,10 @@ function addMessage(message) {
 
 joinGameButton.addEventListener("click", function () {
   //Emitter brugeren der vil tilslutte sig til et spil, samt skærmstørrelsen
-  const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+  const screenWidth =
+    window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  const screenHeight =
+    window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
   socket.emit("join-game", { screenWidth, screenHeight });
 });
 
@@ -97,8 +105,8 @@ socket.on("score", function (scores) {
   let player1Score = document.getElementById("player1Score");
   let player2Score = document.getElementById("player2Score");
 
-  player1Score.innerText = "Score: " + scores.score[0];
-  player2Score.innerText = "Score: " + scores.score[1];
+  player1Score.innerText = current_user + "Score: " + scores.score[0];
+  player2Score.innerText = current_user + "Score: " + scores.score[1];
   if (scores.score[0] === 32) {
     alert("Player 1 won!");
   }
@@ -109,17 +117,21 @@ socket.on("score", function (scores) {
 
 //Sender besked til brugeren, samt sender dem til /dashboard når spillet slutter
 socket.on("game-over", function (data) {
-  fetch("/leaderboard", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ winner: current_user }),
-    credentials: "include",
-  }).catch((error) => console.error("Error:", error));
+  if (data.winnerId === mySocketId) {
+    fetch("/leaderboard", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ winner: current_user }),
+      credentials: "include",
+    }).catch((error) => console.error("Error:", error));
 
-  alert(data.message);
-  window.location.href = data.redirectTo;
+    alert(data.message);
+    window.location.href = data.redirectTo;
+  } else {
+    alert("You Lost! Game over");
+  }
 });
 
 function renderGame(state) {
@@ -165,7 +177,8 @@ function renderGame(state) {
     //Blocks
     context.beginPath();
     state.players.forEach((player, playerIndex) => {
-      const totalBlocksWidth = blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
+      const totalBlocksWidth =
+        blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
       const playerAreaStartX = playerIndex * (canvas.width / 2);
       const playerAreaWidth = canvas.width / 2;
       const gridStartX = playerAreaStartX + (playerAreaWidth - totalBlocksWidth) / 2;
