@@ -82,7 +82,8 @@ module.exports = (io) => {
 
     // Check if the ball is within the horizontal range of the paddle
     const withinPaddleHorizontal =
-      ball.x + ball.radius > paddle.paddlePos && ball.x - ball.radius < paddle.paddlePos + paddleWidth;
+      ball.x + ball.radius > paddle.paddlePos &&
+      ball.x - ball.radius < paddle.paddlePos + paddleWidth;
 
     // Check if the ball is colliding with the top surface of the paddle
     const collidesWithTopOfPaddle =
@@ -125,8 +126,10 @@ module.exports = (io) => {
             };
 
             // Determine the side of the collision
-            const verticalOverlap = ball.vy > 0 ? ballBottomEdge - blockY : blockY + blockHeight - ballTopEdge;
-            const horizontalOverlap = ball.vx > 0 ? ballRightEdge - blockX : blockX + blockWidth - ballLeftEdge;
+            const verticalOverlap =
+              ball.vy > 0 ? ballBottomEdge - blockY : blockY + blockHeight - ballTopEdge;
+            const horizontalOverlap =
+              ball.vx > 0 ? ballRightEdge - blockX : blockX + blockWidth - ballLeftEdge;
 
             if (verticalOverlap < horizontalOverlap) {
               ball.vy *= -1; // Reverse vertical direction
@@ -150,7 +153,10 @@ module.exports = (io) => {
       if (player.movingLeft) {
         player.paddlePos = Math.max(player.paddlePos - paddleMoveSpeed, 0);
       } else if (player.movingRight) {
-        player.paddlePos = Math.min(player.paddlePos + paddleMoveSpeed, canvasWidth / 2 - paddleWidth);
+        player.paddlePos = Math.min(
+          player.paddlePos + paddleMoveSpeed,
+          canvasWidth / 2 - paddleWidth
+        );
       }
 
       if (!player.ball) {
@@ -191,10 +197,12 @@ module.exports = (io) => {
         player.ball.vy *= -1; // Reverse ball direction
         if (player.ball.vy > 0) {
           // Ball moving downwards, place it below the paddle
-          player.ball.y = canvasHeight - paddleHeight - canvasBottomToPaddle + player.ball.radius + 1;
+          player.ball.y =
+            canvasHeight - paddleHeight - canvasBottomToPaddle + player.ball.radius + 1;
         } else {
           // Ball moving upwards, place it above the paddle
-          player.ball.y = canvasHeight - paddleHeight - canvasBottomToPaddle - player.ball.radius - 1;
+          player.ball.y =
+            canvasHeight - paddleHeight - canvasBottomToPaddle - player.ball.radius - 1;
         }
       }
 
@@ -257,7 +265,7 @@ module.exports = (io) => {
   function handleConnection(socket) {
     socket.on("join-game", (resolution) => {
       // Udregner paddleMoveSpeed og boldens hastighed ud fra skærmopløsningen
-      const scaleFactor = resolution.screenWidth / baseRes.width;
+      const scaleFactor = resolution.screenWidth / baseRes.width / 2;
       paddleMoveSpeed = 10 * scaleFactor;
       verticalSpeed = 3 * scaleFactor;
       horizontalSpeed = 3 * scaleFactor;
