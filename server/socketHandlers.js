@@ -59,6 +59,7 @@ module.exports = (io) => {
           ball: { x: 375, y: 350, vx: horizontalSpeed, vy: verticalSpeed, radius: ballRadius },
           movingLeft: false,
           movingRight: false,
+          ballMissed: false,
         },
         {
           paddlePos: 375,
@@ -67,6 +68,7 @@ module.exports = (io) => {
           ball: { x: 375, y: 350, vx: horizontalSpeed, vy: verticalSpeed, radius: ballRadius },
           movingLeft: false,
           movingRight: false,
+          ballMissed: true,
         },
       ],
     };
@@ -216,30 +218,39 @@ module.exports = (io) => {
   }
 
   function checkGameOver(state) {
-    const isGameOver = state.players.some((player) => {
+    let gameOver = false;
+
+    state.players.forEach((player) => {
       // Check if the ball hits the ground
       if (player.ball.y + player.ball.radius >= canvasHeight - 5) {
-        return true;
+        player.ballMissed = true; // Indicate that this player missed the ball
+        gameOver = true;
       }
 
       // Check if all blocks are cleared
-      if (player.blocks.every((row) => row.every((block) => !block))) {
-        return true;
+      else if (player.blocks.every((row) => row.every((block) => !block))) {
+        gameOver = true;
       }
-
-      return false;
     });
 
-    if (isGameOver) {
-      endGame(state);
+    if (gameOver) {
+      endGame(state); // Now, endGame can check each player's ballMissed status
     }
   }
 
   function endGame(state) {
+    const loser = state.players.find((player) => player.ballMissed);
+    const winnerId = loser ? state.players.find((player) => player.id !== loser.id).id : null;
+    console.log(winnerId);
+
     clearInterval(gameIntervals[state.roomID]); // Stop the game loop
     delete gameStates[state.roomID]; // Clean up the game state
     delete gameIntervals[state.roomID]; // Clean up the game interval
-    io.to(state.roomID).emit("game-over", { message: "Game over!", redirectTo: "/dashboard" });
+    io.to(state.roomID).emit("game-over", {
+      message: "Game over!",
+      winnerId: winnerId,
+      redirectTo: "/dashboard",
+    });
   }
 
   //game start
