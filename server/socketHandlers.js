@@ -49,14 +49,18 @@ module.exports = (io) => {
 
   //new game state
   function createGameState(roomID) {
-    const initialBlocks = createBlocks();
+    const initialBlocksPlayer1 = createBlocks();
+    const initialBlocksPlayer2 = createBlocks();
+    const ballPosPlayer1 = Math.floor(Math.random() * (745 - 5 + 1)) + 5;
+    const ballPosPlayer2 = Math.floor(Math.random() * (745 - 5 + 1)) + 5;
+
     const newState = {
       players: [
         {
           paddlePos: 375,
           score: 0,
-          blocks: initialBlocks,
-          ball: { x: 375, y: 350, vx: horizontalSpeed, vy: verticalSpeed, radius: ballRadius },
+          blocks: initialBlocksPlayer1,
+          ball: { x: ballPosPlayer1, y: 350, vx: horizontalSpeed, vy: verticalSpeed, radius: ballRadius },
           movingLeft: false,
           movingRight: false,
           ballMissed: false,
@@ -64,8 +68,8 @@ module.exports = (io) => {
         {
           paddlePos: 375,
           score: 0,
-          blocks: initialBlocks,
-          ball: { x: 375, y: 350, vx: horizontalSpeed, vy: verticalSpeed, radius: ballRadius },
+          blocks: initialBlocksPlayer2,
+          ball: { x: ballPosPlayer2, y: 350, vx: horizontalSpeed, vy: verticalSpeed, radius: ballRadius },
           movingLeft: false,
           movingRight: false,
           ballMissed: true,
