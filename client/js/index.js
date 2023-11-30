@@ -1,5 +1,7 @@
-function myFunction(x) {
-  x.classList.toggle("change");
+function burgerFunction(element) {
+  if (window.matchMedia("(max-width: 900px)").matches) {
+    element.classList.toggle("change");
+  }
 }
 
 document.getElementById("closeButton").addEventListener("click", function () {

@@ -17,6 +17,22 @@ function getCookie(name) {
 }
 const current_user = getCookie("current_user");
 
+function startCountdown(duration) {
+  var countdownContainer = document.getElementById("countdownContainer");
+  var countdownText = document.getElementById("countdownText");
+  countdownContainer.style.display = "flex"; // Show the countdown
+  var remaining = duration;
+
+  var countdownInterval = setInterval(function () {
+    countdownText.textContent = remaining;
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      countdownContainer.style.display = "none"; // Hide the countdown
+    }
+    remaining--;
+  }, 1000);
+}
+
 function addMessage(message) {
   //Displayer beskeder
   let p = document.createElement("p");
@@ -26,10 +42,8 @@ function addMessage(message) {
 
 joinGameButton.addEventListener("click", function () {
   //Emitter brugeren der vil tilslutte sig til et spil, samt skærmstørrelsen
-  const screenWidth =
-    window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  const screenHeight =
-    window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+  const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
   socket.emit("join-game", { screenWidth, screenHeight });
 });
 
@@ -42,11 +56,11 @@ socket.on("message", function (message) {
 document.body.style.overflow = "hidden";
 
 socket.on("game-started", function (data) {
+  //Starter countdown
   let gameCanvas = document.getElementById("gameCanvas");
   let joinGameButton = document.getElementById("join-game");
   let gameMessages = document.getElementById("game-messages");
   let playerScores = document.getElementById("playerScores");
-  let gameText = document.getElementById("gameText");
 
   gameMessages.innerHTML = data.message;
 
@@ -56,9 +70,6 @@ socket.on("game-started", function (data) {
   if (joinGameButton) {
     joinGameButton.style.display = "none";
   }
-  if (gameText) {
-    gameText.style.display = "none";
-  }
   if (gameMessages) {
     gameMessages.style.display = "none";
   }
@@ -66,6 +77,7 @@ socket.on("game-started", function (data) {
   if (playerScores) {
     playerScores.style.display = "inline-flex";
   }
+  startCountdown(3);
 });
 
 //Initialiserer canvas
@@ -177,8 +189,7 @@ function renderGame(state) {
     //Blocks
     context.beginPath();
     state.players.forEach((player, playerIndex) => {
-      const totalBlocksWidth =
-        blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
+      const totalBlocksWidth = blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
       const playerAreaStartX = playerIndex * (canvas.width / 2);
       const playerAreaWidth = canvas.width / 2;
       const gridStartX = playerAreaStartX + (playerAreaWidth - totalBlocksWidth) / 2;
