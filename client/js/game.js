@@ -17,6 +17,10 @@ function getCookie(name) {
 }
 const current_user = getCookie("current_user");
 
+socket.on("player-identity", function (data) {
+  playerNumber = data.playerNumber;
+});
+
 function startCountdown(duration) {
   var countdownContainer = document.getElementById("countdownContainer");
   var countdownText = document.getElementById("countdownText");
@@ -117,19 +121,17 @@ socket.on("score", function (scores) {
   let player1Score = document.getElementById("player1Score");
   let player2Score = document.getElementById("player2Score");
 
-  player1Score.innerText = current_user + "Score: " + scores.score[0];
-  player2Score.innerText = current_user + "Score: " + scores.score[1];
-  if (scores.score[0] === 32) {
-    alert("Player 1 won!");
-  }
-  if (scores.score[1] === 32) {
-    alert("Player 2 won!");
-  }
+  player1Score.innerHTML = "Player 1 " + "Score: " + scores.score[0];
+  player2Score.innerHTML = "Player 2 " + "Score: " + scores.score[1];
 });
 
 //Sender besked til brugeren, samt sender dem til /dashboard når spillet slutter
 socket.on("game-over", function (data) {
+  console.log("Game event received"); // Add this for debugging
+
   if (data.winnerId === mySocketId) {
+    console.log("Game won event received"); // Add this for debugging
+
     fetch("/leaderboard", {
       method: "POST",
       headers: {
@@ -139,10 +141,13 @@ socket.on("game-over", function (data) {
       credentials: "include",
     }).catch((error) => console.error("Error:", error));
 
-    alert(data.message);
+    alert("You Won! Game over");
     window.location.href = data.redirectTo;
   } else {
+    console.log("Game lost event received"); // Add this for debugging
+
     alert("You Lost! Game over");
+    window.location.href = data.redirectTo;
   }
 });
 

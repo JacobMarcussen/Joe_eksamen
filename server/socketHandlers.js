@@ -242,7 +242,6 @@ module.exports = (io) => {
     delete gameStates[state.roomID]; // Clean up the game state
     delete gameIntervals[state.roomID]; // Clean up the game interval
     io.to(state.roomID).emit("game-over", {
-      message: "You Won! Game over",
       winnerId: winnerId,
       redirectTo: "/dashboard",
     });
@@ -257,7 +256,10 @@ module.exports = (io) => {
     if (playerSockets[1]) {
       state.players[1].id = playerSockets[1];
     }
-
+    io.to(playerSockets[0]).emit("player-identity", { playerNumber: 1 });
+    if (playerSockets[1]) {
+      io.to(playerSockets[1]).emit("player-identity", { playerNumber: 2 });
+    }
     state.roomID = roomID;
     io.to(roomID).emit("game-started", {
       message: "The game is about to begin!",
