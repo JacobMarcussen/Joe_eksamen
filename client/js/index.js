@@ -38,18 +38,35 @@ async function getAllUsers() {
 
 async function insertUsersInLeaderboard() {
   const users = await getAllUsers();
-  const leaderboardRow = document.getElementsByClassName("række");
-  const leaderboardUsername = document.getElementsByClassName("brugernavn");
-  const leaderboardScore = document.getElementsByClassName("score");
+  const leaderboardList = document.getElementById("leaderboardList");
 
-  for (let i = 0; i < leaderboardRow.length; i++) {
-    leaderboardRow[i].style.display = "none";
-  }
+  leaderboardList.innerHTML = "";
 
+  // Loop through the users array to create and append new list items
   for (let i = 0; i < users.length; i++) {
-    leaderboardRow[i].style.display = "flex";
-    leaderboardUsername[i].innerHTML = `#${i + 1} ` + users[i].username;
-    leaderboardScore[i].innerHTML = `Score: ` + users[i].gameScore;
+    // Create a new list item
+    const li = document.createElement("li");
+    li.style.display = "flex";
+    li.style.justifyContent = "space-between";
+    li.style.alignItems = "center";
+    li.style.padding = "10px 0"; // Add padding or any other styles as needed
+
+    // Create a span for the username
+    const usernameSpan = document.createElement("span");
+    usernameSpan.className = "leaderboardUsername";
+    usernameSpan.innerHTML = `#${i + 1} ${users[i].username}`;
+
+    // Create a span for the score
+    const scoreSpan = document.createElement("span");
+    scoreSpan.className = "leaderboardScore";
+    scoreSpan.innerHTML = `Score: ${users[i].gameScore}`;
+
+    // Append the username and score spans to the list item
+    li.appendChild(usernameSpan);
+    li.appendChild(scoreSpan);
+
+    // Append the list item to the leaderboard list
+    leaderboardList.appendChild(li);
   }
 }
 insertUsersInLeaderboard();
