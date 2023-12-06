@@ -1,5 +1,3 @@
-const { Socket } = require("socket.io");
-
 module.exports = (io) => {
   const waitingPlayers = [];
   const gameStates = {};
@@ -60,7 +58,13 @@ module.exports = (io) => {
           paddlePos: 375,
           score: 0,
           blocks: initialBlocksPlayer1,
-          ball: { x: ballPosPlayer1, y: 350, vx: horizontalSpeed, vy: verticalSpeed, radius: ballRadius },
+          ball: {
+            x: ballPosPlayer1,
+            y: 350,
+            vx: horizontalSpeed,
+            vy: verticalSpeed,
+            radius: ballRadius,
+          },
           movingLeft: false,
           movingRight: false,
           ballMissed: false,
@@ -69,7 +73,13 @@ module.exports = (io) => {
           paddlePos: 375,
           score: 0,
           blocks: initialBlocksPlayer2,
-          ball: { x: ballPosPlayer2, y: 350, vx: horizontalSpeed, vy: verticalSpeed, radius: ballRadius },
+          ball: {
+            x: ballPosPlayer2,
+            y: 350,
+            vx: horizontalSpeed,
+            vy: verticalSpeed,
+            radius: ballRadius,
+          },
           movingLeft: false,
           movingRight: false,
           ballMissed: true,
@@ -88,7 +98,8 @@ module.exports = (io) => {
 
     // Check if the ball is within the horizontal range of the paddle
     const withinPaddleHorizontal =
-      ball.x + ball.radius > paddle.paddlePos && ball.x - ball.radius < paddle.paddlePos + paddleWidth;
+      ball.x + ball.radius > paddle.paddlePos &&
+      ball.x - ball.radius < paddle.paddlePos + paddleWidth;
 
     // Check if the ball is colliding with the top surface of the paddle
     const collidesWithTopOfPaddle =
@@ -131,8 +142,10 @@ module.exports = (io) => {
             };
 
             // Determine the side of the collision
-            const verticalOverlap = ball.vy > 0 ? ballBottomEdge - blockY : blockY + blockHeight - ballTopEdge;
-            const horizontalOverlap = ball.vx > 0 ? ballRightEdge - blockX : blockX + blockWidth - ballLeftEdge;
+            const verticalOverlap =
+              ball.vy > 0 ? ballBottomEdge - blockY : blockY + blockHeight - ballTopEdge;
+            const horizontalOverlap =
+              ball.vx > 0 ? ballRightEdge - blockX : blockX + blockWidth - ballLeftEdge;
 
             if (verticalOverlap < horizontalOverlap) {
               ball.vy *= -1; // Reverse vertical direction
@@ -156,7 +169,10 @@ module.exports = (io) => {
       if (player.movingLeft) {
         player.paddlePos = Math.max(player.paddlePos - paddleMoveSpeed, 0);
       } else if (player.movingRight) {
-        player.paddlePos = Math.min(player.paddlePos + paddleMoveSpeed, canvasWidth / 2 - paddleWidth);
+        player.paddlePos = Math.min(
+          player.paddlePos + paddleMoveSpeed,
+          canvasWidth / 2 - paddleWidth
+        );
       }
 
       if (!player.ball) {
@@ -197,10 +213,12 @@ module.exports = (io) => {
         player.ball.vy *= -1; // Reverse ball direction
         if (player.ball.vy > 0) {
           // Ball moving downwards, place it below the paddle
-          player.ball.y = canvasHeight - paddleHeight - canvasBottomToPaddle + player.ball.radius + 1;
+          player.ball.y =
+            canvasHeight - paddleHeight - canvasBottomToPaddle + player.ball.radius + 1;
         } else {
           // Ball moving upwards, place it above the paddle
-          player.ball.y = canvasHeight - paddleHeight - canvasBottomToPaddle - player.ball.radius - 1;
+          player.ball.y =
+            canvasHeight - paddleHeight - canvasBottomToPaddle - player.ball.radius - 1;
         }
       }
 

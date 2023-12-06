@@ -14,7 +14,11 @@
       <div id="logoutConfirmationForm" class="confirmation-form">
         <span id="closeButton" style="float: right; cursor: pointer">✕</span>
         <p>Er du sikker på at du vil log ud?</p>
-        <button id="confirmLogoutButton" type="button" style="background-color: rgb(30, 30, 30); color: whitesmoke">
+        <button
+          id="confirmLogoutButton"
+          type="button"
+          style="background-color: rgb(30, 30, 30); color: whitesmoke"
+        >
           Bekræft log out
         </button>
       </div>
@@ -48,14 +52,18 @@
         <div id="countdownText"></div>
       </div>
       <div id="game">
-        <h1>Tunacado Cruncher</h1>
-        <button id="join-game">Start Spil</button>
-        <div id="game-messages"></div>
-        <div id="playerScores">
-          <p id="player1Score">Score:</p>
-          <p id="player2Score">Score:</p>
+        <div id="gameData">
+          <h1 style="border-bottom: 1px solid #e0e0e0">Tunacado Cruncher</h1>
+          <button id="join-game">Start Spil</button>
+          <div id="game-messages"></div>
         </div>
-        <canvas id="gameCanvas" width="1500px" height="700px"></canvas>
+        <div id="canvasContainer">
+          <div id="playerScores">
+            <p id="player1Score">Score:</p>
+            <p id="player2Score">Score:</p>
+          </div>
+          <canvas id="gameCanvas" width="1500px" height="700px"></canvas>
+        </div>
       </div>
     </div>
     <div class="footer" style="top: 0">
@@ -63,7 +71,8 @@
         src="../img/small_logo.svg"
         alt="small_logo"
         class="logo"
-        style="position: relative; margin-top: 25px; scale: 1.3" />
+        style="position: relative; margin-top: 25px; scale: 1.3"
+      />
     </div>
 
     <script src="/socket.io/socket.io.js"></script>

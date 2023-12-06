@@ -46,8 +46,10 @@ function addMessage(message) {
 
 joinGameButton.addEventListener("click", function () {
   //Emitter brugeren der vil tilslutte sig til et spil, samt skærmstørrelsen
-  const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+  const screenWidth =
+    window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  const screenHeight =
+    window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
   socket.emit("join-game", { screenWidth, screenHeight });
 });
 
@@ -80,6 +82,9 @@ socket.on("game-started", function (data) {
   //Displayer scoren for hver spiller
   if (playerScores) {
     playerScores.style.display = "inline-flex";
+  }
+  if (gameCanvas) {
+    gameCanvas.style.display = "block";
   }
   startCountdown(3);
 });
@@ -151,6 +156,17 @@ socket.on("game-over", function (data) {
   }
 });
 
+var blockImage = new Image();
+blockImage.src = "../img/tunacado.png";
+
+// A flag to check if the image is loaded
+var isImageLoaded = false;
+
+blockImage.onload = function () {
+  // Set the flag to true once the image is loaded
+  isImageLoaded = true;
+};
+
 function renderGame(state) {
   //Tømmer canvas, hvis der skulle være noget
   context.clearRect(0, 0, canvas.width, canvas.height);
@@ -192,25 +208,26 @@ function renderGame(state) {
     context.closePath();
 
     //Blocks
-    context.beginPath();
-    state.players.forEach((player, playerIndex) => {
-      const totalBlocksWidth = blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
-      const playerAreaStartX = playerIndex * (canvas.width / 2);
-      const playerAreaWidth = canvas.width / 2;
-      const gridStartX = playerAreaStartX + (playerAreaWidth - totalBlocksWidth) / 2;
+    if (isImageLoaded) {
+      state.players.forEach((player, playerIndex) => {
+        const totalBlocksWidth =
+          blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
+        const playerAreaStartX = playerIndex * (canvas.width / 2);
+        const playerAreaWidth = canvas.width / 2;
+        const gridStartX = playerAreaStartX + (playerAreaWidth - totalBlocksWidth) / 2;
 
-      player.blocks.forEach((row, rowIndex) => {
-        row.forEach((block, blockIndex) => {
-          if (block) {
-            const x = gridStartX + blockIndex * (blockWidth + blockPadding);
-            const y = rowIndex * (blockHeight + blockPadding) + blockOffsetTop;
-            context.rect(x, y, blockWidth, blockHeight);
-          }
+        player.blocks.forEach((row, rowIndex) => {
+          row.forEach((block, blockIndex) => {
+            if (block) {
+              const x = gridStartX + blockIndex * (blockWidth + blockPadding);
+              const y = rowIndex * (blockHeight + blockPadding) + blockOffsetTop;
+              const scaledWidth = blockWidth * 1.3; // 1.3 > 1 to increase size
+              const scaledHeight = blockHeight * 1.3; // scaleFactor > 1 to increase size
+              context.drawImage(blockImage, x, y, scaledWidth, scaledHeight);
+            }
+          });
         });
       });
-    });
-    context.fillStyle = "rgba(247, 193, 217, 1)";
-    context.fill();
-    context.closePath();
+    }
   });
 }

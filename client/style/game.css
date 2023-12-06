@@ -17,6 +17,7 @@ html {
   height: 700px;
   max-width: 100%;
   aspect-ratio: unset;
+  display: none;
 }
 
 #playerScores {
@@ -37,4 +38,23 @@ html {
   font-size: 50px; /* Large text size */
   color: white;
   z-index: 1000; /* Ensure it's on top of everything */
+}
+
+#gameData {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  top: -80px;
+  position: relative;
+  padding-top: 30px;
+}
+
+#canvasContainer {
+  top: -60px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
