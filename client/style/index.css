@@ -196,6 +196,7 @@ button {
   overflow: visible;
   margin-left: 25px;
   margin-right: 25px;
+  margin-top: 50px;
 }
 .intro h1 {
   font-size: 40px;
@@ -389,7 +390,6 @@ ul {
 .leaderboardListItem:hover {
   scale: 1.01;
   transition: 100ms ease-in-out;
-  border-bottom: none;
 }
 
 .leaderboardListItem:first-child {
@@ -399,23 +399,4 @@ ul {
 .leaderboardListItem:first-child .leaderboardUsername,
 .leaderboardListItem:first-child .leaderboardScore {
   color: rgba(247, 193, 217, 1);
-}
-
-.leaderboardDivider {
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
-  text-align: center;
-}
-
-.leaderboardUsername {
-  flex-grow: 0;
-  flex-shrink: 0;
-  text-align: left;
-}
-
-.leaderboardScore {
-  flex-grow: 0;
-  flex-shrink: 0;
-  text-align: right;
 }

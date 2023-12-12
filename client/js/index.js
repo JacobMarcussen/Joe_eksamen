@@ -53,11 +53,6 @@ async function insertUsersInLeaderboard() {
     usernameSpan.className = "leaderboardUsername";
     usernameSpan.innerHTML = `#${i + 1}&nbsp;&nbsp;${users[i].username}`;
 
-    // Create a span for the username
-    const dividerSpan = document.createElement("span");
-    dividerSpan.className = "leaderboardDivider";
-    dividerSpan.innerHTML = `|`;
-
     // Create a span for the score
     const scoreSpan = document.createElement("span");
     scoreSpan.className = "leaderboardScore";
@@ -65,7 +60,6 @@ async function insertUsersInLeaderboard() {
 
     // Append the username and score spans to the list item
     liItem.appendChild(usernameSpan);
-    liItem.appendChild(dividerSpan);
     liItem.appendChild(scoreSpan);
 
     // Append the list item to the leaderboard list
