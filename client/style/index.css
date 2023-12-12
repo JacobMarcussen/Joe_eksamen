@@ -127,7 +127,7 @@ header {
 .explore {
   text-align: center;
   width: 100%;
-  height: 30%;
+  height: 10%;
 }
 
 @media only screen and (max-height: 870px) {
@@ -356,40 +356,66 @@ button {
 #leaderboard {
   width: 100%; /* Adjust width as needed */
   max-width: 600px; /* Or any max-width that fits your design */
-  background: #333; /* Or any color that matches your design */
   border-radius: 5px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  padding: 20px;
+  box-shadow: 0 0px 15px 0px #00000080;
+  padding: 20px 40px;
   box-sizing: border-box;
+  background-color: rgb(30, 30, 30);
+  border: 1px solid rgba(247, 193, 217, 1);
 }
 
 .leaderboard ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Style each leaderboard item */
-.leaderboard li {
+ul {
+  padding: 0;
+}
+
+.leaderboardListItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #444; /* Or any color that matches your design */
-  color: white; /* Or any color that matches your design */
+  color: white;
+  border-bottom: 1px solid #444;
 }
 
-.leaderboard li:first-child {
-  border-top: 1px solid #444; /* Or any color that matches your design */
+.leaderboardListItem:hover {
+  scale: 1.01;
+  transition: 100ms ease-in-out;
+  border-bottom: none;
 }
 
-.leaderboard li:first-child .leaderboardUsername,
-.leaderboard li:first-child .leaderboardScore {
-  color: #ff6f61; /* Highlight color */
-  font-weight: bold;
+.leaderboardListItem:first-child {
+  border-bottom: 1px gold solid !important;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
+.leaderboardListItem:first-child .leaderboardUsername,
+.leaderboardListItem:first-child .leaderboardScore {
+  color: rgba(247, 193, 217, 1);
+}
+
+.leaderboardDivider {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  text-align: center;
+}
+
+.leaderboardUsername {
+  flex-grow: 0;
+  flex-shrink: 0;
+  text-align: left;
+}
+
+.leaderboardScore {
+  flex-grow: 0;
+  flex-shrink: 0;
+  text-align: right;
 }

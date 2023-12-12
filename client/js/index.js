@@ -45,16 +45,18 @@ async function insertUsersInLeaderboard() {
   // Loop through the users array to create and append new list items
   for (let i = 0; i < users.length; i++) {
     // Create a new list item
-    const li = document.createElement("li");
-    li.style.display = "flex";
-    li.style.justifyContent = "space-between";
-    li.style.alignItems = "center";
-    li.style.padding = "10px 0"; // Add padding or any other styles as needed
+    const liItem = document.createElement("li");
+    liItem.className = "leaderboardListItem";
 
     // Create a span for the username
     const usernameSpan = document.createElement("span");
     usernameSpan.className = "leaderboardUsername";
-    usernameSpan.innerHTML = `#${i + 1} ${users[i].username}`;
+    usernameSpan.innerHTML = `#${i + 1}&nbsp;&nbsp;${users[i].username}`;
+
+    // Create a span for the username
+    const dividerSpan = document.createElement("span");
+    dividerSpan.className = "leaderboardDivider";
+    dividerSpan.innerHTML = `|`;
 
     // Create a span for the score
     const scoreSpan = document.createElement("span");
@@ -62,11 +64,12 @@ async function insertUsersInLeaderboard() {
     scoreSpan.innerHTML = `Score: ${users[i].gameScore}`;
 
     // Append the username and score spans to the list item
-    li.appendChild(usernameSpan);
-    li.appendChild(scoreSpan);
+    liItem.appendChild(usernameSpan);
+    liItem.appendChild(dividerSpan);
+    liItem.appendChild(scoreSpan);
 
     // Append the list item to the leaderboard list
-    leaderboardList.appendChild(li);
+    leaderboardList.appendChild(liItem);
   }
 }
 insertUsersInLeaderboard();
