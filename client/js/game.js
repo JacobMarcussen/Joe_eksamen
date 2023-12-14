@@ -1,6 +1,24 @@
 let socket = io.connect();
 let joinGameButton = document.getElementById("join-game");
 let gameMessages = document.getElementById("game-messages");
+const game = document.getElementById("game");
+
+game.addEventListener("mouseover", function () {
+  const pinkBanner = document.getElementById("pinkBanner");
+  if (!pinkBanner.classList.contains("no-hover")) {
+    pinkBanner.style.height = "100%";
+    pinkBanner.style.transition = "height 1s ease-in-out";
+  }
+});
+
+game.addEventListener("mouseout", function () {
+  const pinkBanner = document.getElementById("pinkBanner");
+  if (!pinkBanner.classList.contains("no-hover")) {
+    pinkBanner.style.height = "180px";
+    pinkBanner.style.transition = "height 1s ease-in-out";
+  }
+});
+
 //Henter socket.id'et på brugeren, så den korrekte vinder kan findes
 let mySocketId;
 socket.on("connect", () => {
@@ -46,10 +64,8 @@ function addMessage(message) {
 
 joinGameButton.addEventListener("click", function () {
   //Emitter brugeren der vil tilslutte sig til et spil, samt skærmstørrelsen
-  const screenWidth =
-    window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  const screenHeight =
-    window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+  const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
   socket.emit("join-game", { screenWidth, screenHeight });
 });
 
@@ -67,6 +83,15 @@ socket.on("game-started", function (data) {
   let joinGameButton = document.getElementById("join-game");
   let gameMessages = document.getElementById("game-messages");
   let playerScores = document.getElementById("playerScores");
+  let pinkBanner = document.getElementById("pinkBanner");
+  var h1GameData = document.querySelector("#gameData h1");
+
+  pinkBanner.style.height = "100%";
+  pinkBanner.style.transition = "height 1s ease-in-out";
+  pinkBanner.classList.add("no-hover");
+
+  h1GameData.style.position = "relative";
+  h1GameData.style.top = "50px";
 
   gameMessages.innerHTML = data.message;
 
@@ -184,7 +209,7 @@ function renderGame(state) {
   context.beginPath();
   context.moveTo(canvas.width / 2, 0);
   context.lineTo(canvas.width / 2, canvas.height);
-  context.strokeStyle = "rgba(247, 193, 217, 1)";
+  context.strokeStyle = "#ffc0cb";
   context.stroke();
 
   //Tegner bolden, paddle, og blocks for hver spiller
@@ -210,8 +235,7 @@ function renderGame(state) {
     //Blocks
     if (isImageLoaded) {
       state.players.forEach((player, playerIndex) => {
-        const totalBlocksWidth =
-          blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
+        const totalBlocksWidth = blockWidth * player.blocks[0].length + blockPadding * (player.blocks[0].length - 1);
         const playerAreaStartX = playerIndex * (canvas.width / 2);
         const playerAreaWidth = canvas.width / 2;
         const gridStartX = playerAreaStartX + (playerAreaWidth - totalBlocksWidth) / 2;
@@ -221,8 +245,8 @@ function renderGame(state) {
             if (block) {
               const x = gridStartX + blockIndex * (blockWidth + blockPadding);
               const y = rowIndex * (blockHeight + blockPadding) + blockOffsetTop;
-              const scaledWidth = blockWidth * 1.3; // 1.3 > 1 to increase size
-              const scaledHeight = blockHeight * 1.3; // scaleFactor > 1 to increase size
+              const scaledWidth = blockWidth * 1.3;
+              const scaledHeight = blockHeight * 1.3;
               context.drawImage(blockImage, x, y, scaledWidth, scaledHeight);
             }
           });
