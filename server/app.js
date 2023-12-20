@@ -18,10 +18,11 @@ db.serialize(() => {
   db.run(
     "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, phone TEXT, authenticatorCode TEXT, isUserAuth BOOLEAN, gameScore INTEGER)"
   );
+  // Nedenstående linje sletter databasen. Fjern udkommentering for at eksekvere
   // db.run("DROP TABLE IF EXISTS users");
 });
 
-// Auth
+// Auth sikrer at brugeren er på den korrekte side hvis de er logget ind og redirecter til login siden hvis de ikke er logget ind
 function checkAuthentication(req, res, next) {
   if (!!req.cookies.session_token) {
     const SECRET_KEY = process.env.SECRET_KEY;

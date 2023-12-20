@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("database.db");
-// const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+// Sender leaderboard data til database
 router.post("/leaderboard", (req, res) => {
   const SECRET_KEY = process.env.SECRET_KEY;
   const token = req.cookies.session_token;
@@ -26,6 +26,7 @@ router.post("/leaderboard", (req, res) => {
   }
 });
 
+// Henter leaderboard data fra databasen
 router.get("/leaderboard", (req, res) => {
   db.all("SELECT username, gameScore FROM users ORDER BY gameScore DESC LIMIT 10", (err, users) => {
     if (err) {

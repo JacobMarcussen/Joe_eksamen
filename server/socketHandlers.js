@@ -1,4 +1,5 @@
 module.exports = (io) => {
+  // Definerer variabler for spillet
   const waitingPlayers = [];
   const gameStates = {};
   const socketToRoom = {};
@@ -16,13 +17,13 @@ module.exports = (io) => {
   let verticalSpeed = 3;
   let horizontalSpeed = 3;
 
-  //Create Blocks
+  // Laver Blocks
   function createBlocks() {
     let blocks = [];
-    //5 rækker
+    // 4 rækker
     for (let i = 0; i < 4; i++) {
       blocks[i] = [];
-      //12 kolonner
+      // 8 kolonner
       for (let j = 0; j < 8; j++) {
         blocks[i][j] = true;
       }
@@ -30,22 +31,20 @@ module.exports = (io) => {
     return blocks;
   }
 
-  //set the mapping
   function joinRoom(socketId, roomID) {
     socketToRoom[socketId] = roomID;
   }
 
-  //delete the mapping
   function leaveRoom(socketId) {
     delete socketToRoom[socketId];
   }
 
-  //Finder rigtige rum
+  // Finder rigtige rum
   function findRoomIDBySocketID(socketId) {
     return socketToRoom[socketId];
   }
 
-  //new game state
+  // Laver ny game state
   function createGameState(roomID) {
     const initialBlocksPlayer1 = createBlocks();
     const initialBlocksPlayer2 = createBlocks();
@@ -87,7 +86,7 @@ module.exports = (io) => {
       ],
     };
 
-    // Store the new state in the gameStates object
+    // Gemmer game state i gameStates objektet
     gameStates[roomID] = newState;
     return newState;
   }
@@ -96,14 +95,14 @@ module.exports = (io) => {
     const paddleTopY = canvasHeight - paddleHeight - canvasBottomToPaddle;
     const paddleBottomY = canvasHeight - canvasBottomToPaddle;
 
-    // Check if the ball is within the horizontal range of the paddle
+    // Tjek om bolden er inden for den vandrette rækkevidde
     const withinPaddleHorizontal =
       ball.x + ball.radius > paddle.paddlePos && ball.x - ball.radius < paddle.paddlePos + paddleWidth;
 
-    // Check if the ball is colliding with the top surface of the paddle
+    // Tjek, om bolden kolliderer med den øverste overflade
     const collidesWithTopOfPaddle =
-      ball.y + ball.radius > paddleTopY && // Ball is below the top edge of the paddle
-      ball.y - ball.radius < paddleBottomY; // Ball's top is above the paddle's bottom
+      ball.y + ball.radius > paddleTopY &&
+      ball.y - ball.radius < paddleBottomY;
 
     return withinPaddleHorizontal && collidesWithTopOfPaddle;
   }
@@ -132,32 +131,35 @@ module.exports = (io) => {
             ballBottomEdge > blockY &&
             ballTopEdge < blockY + blockHeight
           ) {
-            blocks[i][j] = false; // Block destroyed
+            // En block bliver ødelagt
+            blocks[i][j] = false; 
 
-            // Find the closest edge
+            // Finder nærmeste kant
             const closestEdge = {
               x: ball.vx > 0 ? blockX - 1 : blockX + blockWidth + 1,
               y: ball.vy > 0 ? blockY - 1 : blockY + blockHeight + 1,
             };
 
-            // Determine the side of the collision
+            // Bestem siden af kollisionen
             const verticalOverlap = ball.vy > 0 ? ballBottomEdge - blockY : blockY + blockHeight - ballTopEdge;
             const horizontalOverlap = ball.vx > 0 ? ballRightEdge - blockX : blockX + blockWidth - ballLeftEdge;
 
+            // Ændrer boldens position og retning
             if (verticalOverlap < horizontalOverlap) {
-              ball.vy *= -1; // Reverse vertical direction
-              ball.y = closestEdge.y; // Adjust ball y position to be outside the block
+              ball.vy *= -1; 
+              ball.y = closestEdge.y; 
             } else {
-              ball.vx *= -1; // Reverse horizontal direction
-              ball.x = closestEdge.x; // Adjust ball x position to be outside the block
+              ball.vx *= -1; 
+              ball.x = closestEdge.x; 
             }
-
-            return true; // Collision detected
+            // Registrerer kollision
+            return true; 
           }
         }
       }
     }
-    return false; // No collision detected
+    // Registrerer ingen kollision
+    return false; 
   }
 
   // Game loop function
@@ -171,7 +173,7 @@ module.exports = (io) => {
 
       if (!player.ball) {
         console.error("Ball object not found for player", index);
-        return; // Skip this iteration
+        return;
       }
 
       checkCollisions(state);
@@ -197,19 +199,17 @@ module.exports = (io) => {
       checkGameOver(state);
     });
 
-    // Emit the updated state to both players
+    // Send den opdaterede tilstand til begge spillere
     io.to(state.roomID).emit("game-state", state);
   }
-
+// Tjekker kollision
   function checkCollisions(state) {
     state.players.forEach((player) => {
       if (ballHitsPaddle(player.ball, player)) {
-        player.ball.vy *= -1; // Reverse ball direction
+        player.ball.vy *= -1;
         if (player.ball.vy > 0) {
-          // Ball moving downwards, place it below the paddle
           player.ball.y = canvasHeight - paddleHeight - canvasBottomToPaddle + player.ball.radius + 1;
         } else {
-          // Ball moving upwards, place it above the paddle
           player.ball.y = canvasHeight - paddleHeight - canvasBottomToPaddle - player.ball.radius - 1;
         }
       }
@@ -227,37 +227,35 @@ module.exports = (io) => {
     let gameOver = false;
 
     state.players.forEach((player) => {
-      // Check if the ball hits the ground
+      // Tjekker om bolden rammer jorden
       if (player.ball.y + player.ball.radius >= canvasHeight - 5) {
-        player.ballMissed = true; // Indicate that this player missed the ball
+        player.ballMissed = true; 
         gameOver = true;
       }
-
-      // Check if all blocks are cleared
       else if (player.blocks.every((row) => row.every((block) => !block))) {
         gameOver = true;
       }
     });
 
     if (gameOver) {
-      endGame(state); // Now, endGame can check each player's ballMissed status
+      endGame(state); // Slutter spillet hvis bolden er misset
     }
   }
-
+  // Stopper spillet og nulstiller game state
   function endGame(state) {
     const loser = state.players.find((player) => player.ballMissed);
     const winnerId = loser ? state.players.find((player) => player.id !== loser.id).id : null;
 
-    clearInterval(gameIntervals[state.roomID]); // Stop the game loop
-    delete gameStates[state.roomID]; // Clean up the game state
-    delete gameIntervals[state.roomID]; // Clean up the game interval
+    clearInterval(gameIntervals[state.roomID]); 
+    delete gameStates[state.roomID]; 
+    delete gameIntervals[state.roomID]; 
     io.to(state.roomID).emit("game-over", {
       winnerId: winnerId,
       redirectTo: "/dashboard",
     });
   }
 
-  //game start
+  // Starter spillet
   function startGame(roomID, playerSockets) {
     const state = createGameState(roomID);
 
@@ -274,10 +272,10 @@ module.exports = (io) => {
     io.to(roomID).emit("game-started", {
       message: "The game is about to begin!",
     });
-    // Broadcast initial game state
+    // Opsætter indlende game state
     setTimeout(() => {
       io.to(roomID).emit("game-state", state);
-      // Start the game loop
+      // Starter game loop
       gameIntervals[state.roomID] = setInterval(() => gameLoop(state), 1000 / 200); // Run at 60 fps
     }, 4000);
   }
@@ -290,26 +288,24 @@ module.exports = (io) => {
       verticalSpeed = 3 * scaleFactor;
       horizontalSpeed = 3 * scaleFactor;
 
-      // When a player wants to join, add them to the waiting queue or pair them if possible
+      // Tilføjer spillere til venteliste eller sætter dem i et aktivt spil
       if (waitingPlayers.length > 0) {
-        // Pair the current socket with the first waiting player
+        // Sætter 2 spillere i spil sammen
         const opponentSocketId = waitingPlayers.shift(); // Dequeue the waiting player
 
-        // Create a unique room ID using both socket IDs to ensure uniqueness
+        // Opret et unikt rum-id ved at bruge begge socket-id'er for at sikre unikhed
         const roomID = `room_${socket.id}_${opponentSocketId}`;
 
         joinRoom(socket.id, roomID);
         joinRoom(opponentSocketId, roomID);
         socket.join(roomID);
         io.sockets.sockets.get(opponentSocketId).join(roomID);
-
-        // Notify both players that the game is starting
         io.to(roomID).emit("message", "Game is starting...");
 
-        // Start the game for this room
+        // Starter spil
         startGame(roomID, [socket.id, opponentSocketId]);
       } else {
-        // No opponents waiting, add the player to the waiting queue
+        // Sætter spillere i kø, hvis der ikke er nogle klar til at spille
         waitingPlayers.push(socket.id);
         socket.emit("message", "Waiting for an opponent...");
       }
@@ -328,7 +324,7 @@ module.exports = (io) => {
         return;
       }
 
-      // Update the player's movement state
+      // Opdater spillerens bevægelsestilstand
       if (action.type === "move") {
         if (action.direction === "left") {
           player.movingLeft = action.state === "down";
@@ -339,14 +335,13 @@ module.exports = (io) => {
     });
 
     socket.on("disconnect", () => {
-      // Remove the socket from the waiting queue if it disconnects before pairing
+      // Fjern socket fra ventekøen, hvis det afbrydes før parring
       const index = waitingPlayers.indexOf(socket.id);
       if (index !== -1) {
         waitingPlayers.splice(index, 1);
       }
       const roomID = findRoomIDBySocketID(socket.id);
       if (roomID) {
-        // Do any cleanup necessary for the player leaving the room
         leaveRoom(socket.id);
       }
     });

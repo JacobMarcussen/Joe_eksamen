@@ -42,27 +42,27 @@ async function insertUsersInLeaderboard() {
 
   leaderboardList.innerHTML = "";
 
-  // Loop through the users array to create and append new list items
+  // Looper gennem arrayet for at oprette og tilføje nye listeelementer
   for (let i = 0; i < users.length; i++) {
-    // Create a new list item
+    // Laver nye listeelementer
     const liItem = document.createElement("li");
     liItem.className = "leaderboardListItem";
 
-    // Create a span for the username
+    // Opret et span for brugernavnet
     const usernameSpan = document.createElement("span");
     usernameSpan.className = "leaderboardUsername";
     usernameSpan.innerHTML = `#${i + 1}&nbsp;&nbsp;${users[i].username}`;
 
-    // Create a span for the score
+    // Opret et span for scoren
     const scoreSpan = document.createElement("span");
     scoreSpan.className = "leaderboardScore";
     scoreSpan.innerHTML = `Score: ${users[i].gameScore}`;
 
-    // Append the username and score spans to the list item
+    // Føj brugernavnet og scorespændene til listeelementet
     liItem.appendChild(usernameSpan);
     liItem.appendChild(scoreSpan);
 
-    // Append the list item to the leaderboard list
+    // Føj listeelementet til leaderboard
     leaderboardList.appendChild(liItem);
   }
 }

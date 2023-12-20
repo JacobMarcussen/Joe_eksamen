@@ -45,7 +45,7 @@ function setupSignupPage() {
       phone: signup_form.querySelector("#phone").value,
     };
 
-    // Send data as JSON
+    // Send data som JSON
     fetch("/auth/signup", {
       method: "POST",
       headers: {
@@ -88,23 +88,23 @@ function setupConfirmPhone() {
     })
       .then((response) => {
         if (!response.ok) {
-          // If the HTTP status code is not successful, throw an error
+          // Hvis HTTP-statuskoden ikke lykkes, så kald en error
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return response.json(); // Parse the JSON in the response
+        return response.json(); 
       })
       .then((data) => {
-        // Make sure to check if 'data' and 'data.message' exist
+        // Tjekker 'data' og 'data.message' eksisterer
         if (data && data.message) {
           console.log(data.message);
           window.location.href = "/login";
         } else {
-          // If 'data.message' doesn't exist, throw an error
+          // Hvis 'data.message' ikke eksisterer, kald en error
           throw new Error("No message in response");
         }
       })
       .catch((error) => {
-        // Log or handle any errors that occurred during the fetch
+        // Log eller håndter errors som opstår ved fetch
         console.error("Verification error:", error);
         alert("Verification failed, please try again.");
       });
@@ -116,13 +116,13 @@ function setupDashboardPage() {
   const confirmationOverlay = document.getElementById("confirmationOverlay");
 
   logoutButton.addEventListener("click", function () {
-    // Show the confirmation overlay
+    // Vis confirmation overlay
     confirmationOverlay.style.display = "block";
   });
 
   const confirmLogoutButton = document.getElementById("confirmLogoutButton");
   confirmLogoutButton.addEventListener("click", function () {
-    // Hide the confirmation overlay when the user confirms log-out
+    // Skjul confirmation overlay når brugeren logger ud
     confirmationOverlay.style.display = "none";
     fetch("/auth/logout", {
       method: "POST",
@@ -143,9 +143,9 @@ function setupDashboardPage() {
   const deleteUserButton = document.getElementById("delete_user");
 
   deleteUserButton.addEventListener("click", function () {
-    // Display a confirmation dialog
+    // Vis en confirmation dialog
     if (confirm("Are you sure you want to delete your account?")) {
-      // User confirmed, send a request to delete the user
+      // Sletter konto
       fetch("/auth/deleteUser", {
         method: "DELETE",
       }).then((response) => {

@@ -51,6 +51,7 @@ router.post("/login", (req, res) => {
   });
 });
 
+// Confirm and authorize user route
 router.post("/confirm", (req, res) => {
   const { code } = req.body;
   const token = req.cookies.auth_token;
@@ -138,6 +139,7 @@ router.post("/signup", (req, res) => {
   });
 });
 
+// Log-out route
 router.post("/logout", (req, res) => {
   if (req.body.confirmation === true) {
     res.clearCookie("session_token");
