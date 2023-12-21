@@ -1,6 +1,6 @@
 # Joejuice.me
-
-# .env
+Velkommen,
+Følgende tekst hjælper dig med at starte app'en
 
 # Twilio
 
@@ -25,3 +25,6 @@ Efterfølgende vil applikationen være startet og kører på localhost:8000, som
 # Database - SQLite
 
 For at se databasen, skal brugeren downloade sqlite viewer extension'en i vscode, da databasen er "bare" en fil i projektmappen.
+
+# Prøv spillet
+Vær opmærksom på at hvis du spiller med dig selv crasher app'en. Det er stadig ikke fikset, da det er lettere at fejlfinde/udvikle når man kan prøve mod sig selv. Så find en makker :)
